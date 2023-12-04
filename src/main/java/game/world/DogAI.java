@@ -29,6 +29,7 @@ public class DogAI extends CreatureAI {
         }
         if (!keep) {
             creature.modifyHP(-creature.maxHP());
+            creature.getWorld().remove(creature);
         }
     }
 

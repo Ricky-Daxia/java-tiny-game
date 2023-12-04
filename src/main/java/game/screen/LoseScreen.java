@@ -5,7 +5,7 @@ import game.asciiPanel.AsciiPanel;
 public class LoseScreen extends RestartScreen {
 
     @Override
-    public void displayOutput(AsciiPanel terminal) {
+    public void displayOutput(AsciiPanel terminal, int id) {
         terminal.write("You lost!", 0, 0);
         terminal.write("Press enter to try again.", 0, 1);
     }

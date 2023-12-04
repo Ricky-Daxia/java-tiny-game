@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class World implements Serializable {
 
@@ -11,15 +12,25 @@ public class World implements Serializable {
     private int width;
     private int height;
     private List<Creature> creatures;
+    private ReentrantLock creaturesLock;
 
     public World(Tile[][] tiles) {
         this.tiles = tiles;
         this.width = tiles.length;
         this.height = tiles[0].length;
         this.creatures = new ArrayList<>();
+        this.creaturesLock = new ReentrantLock();
     }
 
-    public synchronized Tile tile(int x, int y) {
+    public void lock() {
+        creaturesLock.lock();
+    }
+
+    public void unlock() {
+        creaturesLock.unlock();
+    }
+
+    public Tile tile(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return Tile.WALL;
         } else {
@@ -56,14 +67,17 @@ public class World implements Serializable {
         do {
             x = (int) (Math.random() * this.width);
             y = (int) (Math.random() * this.height);
-        } while (!tile(x, y).isGround() || this.creature(x, y) != null);
+        } while (!tile(x, y).isGround() || this.creature(x, y) != null 
+            || !tile(x, y).compareAndSet(false, true));
 
         creature.setX(x);
         creature.setY(y);
 
+        this.creaturesLock.lock();
         this.creatures.add(creature);
+        this.creaturesLock.unlock();
     }
-
+    // only for bullet to use 
     public void addAtLocation(Creature creature, int x, int y) {
         if (!tile(x, y).isGround() || this.creature(x, y) != null) {
             return;
@@ -72,30 +86,39 @@ public class World implements Serializable {
         creature.setX(x);
         creature.setY(y);
 
+        this.creaturesLock.lock();
         this.creatures.add(creature);
+        this.creaturesLock.unlock();
     }
-
+    // lock
     public Creature creature(int x, int y) {
+        Creature creature = null;
+        this.creaturesLock.lock();
         for (Creature c : this.creatures) {
             if (c.x() == x && c.y() == y) {
-                return c;
+                creature = c;
             }
         }
-        return null;
+        this.creaturesLock.unlock();
+        return creature;
     }
-
+    // lock
     public List<Creature> getCreatures() {
         return this.creatures;
     }
-
+    // lock
     public void remove(Creature target) {
         if (target.getAI() instanceof BeanAI) {
             ((BeanAI) target.getAI()).decreaseBeans();
-        }        
+        }  
+        creaturesLock.lock();  
         this.creatures.remove(target);
+        creaturesLock.unlock();
+        target.tile(target.x(), target.y()).compareAndSet(true, false);
     }
-
+    // lock
     public void update() {
+        creaturesLock.lock();
         ArrayList<Creature> toUpdate = new ArrayList<>(this.creatures);
 
         for (Creature creature : toUpdate) {
@@ -104,6 +127,7 @@ public class World implements Serializable {
             }
             creature.update();
         }
+        creaturesLock.unlock();
     }
 
     private int manPosX;

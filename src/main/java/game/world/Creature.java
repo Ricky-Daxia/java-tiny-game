@@ -143,8 +143,9 @@ public class Creature implements Serializable {
         Creature other = world.creature(x + mx, y + my);
 
         if (other == null) {
-            ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
-        } else {
+            // ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
+            ai.creature.tryMove(x + mx, y + my);
+        } else if (!(other.getAI() instanceof SnakeAI)) {
             ai.attack(other);
         }
     }
@@ -158,16 +159,24 @@ public class Creature implements Serializable {
     public boolean bulletLike() {
         return bulletlike;
     }
-
+    // every creature invokes this method
     public void tryMove(int x, int y) {
         if (!canEnter(x, y)) {
             System.out.println("try to move to impossible pos" + x + " " + y);
             modifyHP(-maxHP);
+            world.remove(this);
         } else {
             Creature other = world.creature(x, y);
             if (other == null || other.bulletLike()) {
-                setX(x);
-                setY(y);
+                if (!bulletlike) {
+                    world.tile(x(), y()).compareAndSet(true, false);
+                    while (!tile(x, y).compareAndSet(false, true)) ;
+                    setX(x);
+                    setY(y);
+                } else {
+                    setX(x);
+                    setY(y);                    
+                }
                 System.out.println("tryMove set");
             } else {
                 if (this.bulletlike && other.getAI() instanceof SnakeAI) {

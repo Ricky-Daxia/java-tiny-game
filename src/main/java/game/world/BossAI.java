@@ -77,12 +77,13 @@ public class BossAI extends CreatureAI {
         if (!setByTimer) {
             return;
         }
+        World world = creature.getWorld();
         if (creature.hp() < 1) {
+            world.remove(creature);
             task.cancel(true);
             System.out.println("boss died");
             return;
-        }
-        World world = creature.getWorld();
+        }        
         // if (world.creature(world.getManPosX(), world.getManPosY()) == null || world.creature(world.getManPosX(), world.getManPosY()).hp() < 0) {
         //     System.out.println("man has died");
         //     return;
@@ -126,7 +127,8 @@ public class BossAI extends CreatureAI {
             creature.modifyHP(-another.attackValue());
         }
         if (another.hp() < 1) {
-            this.onEnter(another.x(), another.y(), another.tile(another.x(), another.y()));
+            creature.getWorld().remove(another);
+            creature.tryMove(another.x(), another.y());
         }
     }
 

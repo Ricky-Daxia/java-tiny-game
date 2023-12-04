@@ -44,13 +44,15 @@ public class SnakeAI extends CreatureAI {
         // }
         // System.out.println("enter : " + world.tile(x, y));
         //creature.tryMove(x, y);
-        if (tile.isGround()) {
-            creature.setX(x);
-            creature.setY(y);
-            //System.out.println("man set in " + x + "  " + y);
-        } else {
-            return;
-        }
+        // if (tile.isGround() && tile.compareAndSet(false, true)) {
+        //     int oldX = creature.x(), oldY = creature.y();
+        //     creature.setX(x);
+        //     creature.setY(y);
+            
+        //     //System.out.println("man set in " + x + "  " + y);
+        // } else {
+        //     return;
+        // }
     }
 
     @Override
@@ -64,7 +66,8 @@ public class SnakeAI extends CreatureAI {
         }
         creature.modifyHP(-another.attackValue());
         if (another.hp() < 1) {
-            this.onEnter(another.x(), another.y(), another.tile(another.x(), another.y()));
+            creature.getWorld().remove(another);
+            creature.tryMove(another.x(), another.y());
         }
     }
 
@@ -83,6 +86,7 @@ public class SnakeAI extends CreatureAI {
         }
         //System.out.println(creature.x() + " " + creature.y());
         if (creature.hp() < 0) {
+            world.remove(creature);
             System.out.println("snake died");
             task.cancel(true);
         }

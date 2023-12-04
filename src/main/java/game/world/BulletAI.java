@@ -31,5 +31,11 @@ public class BulletAI extends CreatureAI {
     public void attack(Creature another) {
         another.modifyHP(-creature.attackValue());
         creature.modifyHP(-another.attackValue());
+        if (another.hp() < 1) {
+            creature.getWorld().remove(another);
+        }
+        if (creature.hp() < 1) {
+            creature.getWorld().remove(creature);
+        }
     }
 }

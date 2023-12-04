@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import game.asciiPanel.AsciiPanel;
@@ -17,8 +18,8 @@ public class SnakeGameScreen implements Screen, Serializable {
     private static final int WORLD_WIDTH = 40;
     private static final int WORLD_HEIGHT = 40;
 
-    private static final int SCREEN_WIDTH = 30;
-    private static final int SCREEN_HEIGHT = 20;
+    private static final int SCREEN_WIDTH = 40;
+    private static final int SCREEN_HEIGHT = 40;
 
     private static final int LEFT_KEY = 37;
     private static final int RIGHT_KEY = 39;
@@ -29,7 +30,7 @@ public class SnakeGameScreen implements Screen, Serializable {
 
     private int direction = 1;
 
-    private Creature snake;
+    private HashMap<Integer, Creature> snakes;
     private Creature boss;
     private CreatureFactory factory;
 
@@ -51,7 +52,8 @@ public class SnakeGameScreen implements Screen, Serializable {
     }
 
     private void createCreatures(CreatureFactory creatureFactory) {
-        this.snake = creatureFactory.newSnake(this.messages);
+        // this.snake = creatureFactory.newSnake(this.messages);
+        this.snakes = new HashMap<>();
 
         for (int i = 0; i < 5; i++) {
             creatureFactory.newBean();
@@ -65,13 +67,17 @@ public class SnakeGameScreen implements Screen, Serializable {
     }
 
     @Override
-    public void displayOutput(AsciiPanel terminal) {
+    public void displayOutput(AsciiPanel terminal, int id) {
+        if (!snakes.containsKey(id)) {
+            System.out.println("snake with id " + id + " not exist");
+            return;
+        }
         // Terrain and creatures
         displayTiles(terminal, getScrollX(), getScrollY());
         // Player
         //((GlyphDelegate) snake.getAI()).printGlyph(terminal, getScrollX(), getScrollY());
         // Stats
-        String stats = String.format("%3d/%3d hp", snake.hp(), snake.maxHP());
+        String stats = String.format("%3d/%3d hp", snakes.get(id).hp(), snakes.get(id).maxHP()); // use id
         terminal.write(stats, 1, 0);
         // Messages
         displayMessages(terminal, this.messages);
@@ -84,26 +90,29 @@ public class SnakeGameScreen implements Screen, Serializable {
                 int wx = x + left;
                 int wy = y + top;
 
-                if (snake.canSee(wx, wy)) {
-                    terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy));
-                } else {
-                    terminal.write(world.glyph(wx, wy), x, y, Color.DARK_GRAY);
-                }
+                // if (snake.canSee(wx, wy)) {
+                //     terminal.write(world.glyph(wx, wy), x, y, world.color(wx, wy));
+                // } else {
+                //     terminal.write(world.glyph(wx, wy), x, y, Color.DARK_GRAY);
+                // }
+                terminal.write(world.glyph(wx, wy), x, y, Color.DARK_GRAY);
             }
         }
         // Show creatures
+        world.lock();
         for (Creature creature : world.getCreatures()) {
             if (creature.x() >= left && creature.x() < left + SCREEN_WIDTH && creature.y() >= top
                     && creature.y() < top + SCREEN_HEIGHT) {
-                if (snake.canSee(creature.x(), creature.y())) {
-                    if (creature.getAI() instanceof GlyphDelegate) {
-                        ((GlyphDelegate) creature.getAI()).printGlyph(terminal, left, top);
-                    } else {
-                        terminal.write(creature.glyph(), creature.x() - left, creature.y() - top, creature.color());
-                    }
+                // if (snake.canSee(creature.x(), creature.y())) {
+                if (creature.getAI() instanceof GlyphDelegate) {
+                    ((GlyphDelegate) creature.getAI()).printGlyph(terminal, left, top);
+                } else {
+                    terminal.write(creature.glyph(), creature.x() - left, creature.y() - top, creature.color());
                 }
+                // }
             }
         }
+        world.unlock();
         // Creatures can choose their next action now
         world.update();
     }
@@ -118,15 +127,15 @@ public class SnakeGameScreen implements Screen, Serializable {
     }
 
     public int getScrollX() {
-        return Math.max(0, Math.min(snake.x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));
+        return 0; //Math.max(0, Math.min(snake.x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));
     }
 
     public int getScrollY() {
-        return Math.max(0, Math.min(snake.y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));
+        return 0; //Math.max(0, Math.min(snake.y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));
     }
 
     @Override
-    public Screen respondToUserInput(KeyEvent key) {
+    public Screen respondToUserInput(KeyEvent key, int id) {
 
         // switch (key.getKeyCode()) {
         // case LEFT_KEY:
@@ -145,32 +154,33 @@ public class SnakeGameScreen implements Screen, Serializable {
 
         switch (key.getKeyCode()) {
             case KeyEvent.VK_LEFT:
-                snake.moveBy(-1, 0);
+                snakes.get(id).moveBy(-1, 0);
                 break;
             case KeyEvent.VK_RIGHT:
-                snake.moveBy(1, 0);
+                snakes.get(id).moveBy(1, 0);
                 break;
             case KeyEvent.VK_UP:
-                snake.moveBy(0, -1);
+                snakes.get(id).moveBy(0, -1);
                 break;
             case KeyEvent.VK_DOWN:
-                snake.moveBy(0, 1);
+                snakes.get(id).moveBy(0, 1);
                 break;
             case KeyEvent.VK_A:
-                factory.newBullet(snake.x(), snake.y(), -1, 0);
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);
                 break;
             case KeyEvent.VK_D:
-                factory.newBullet(snake.x(), snake.y(), 1, 0);
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);
                 break;
             case KeyEvent.VK_W:
-                factory.newBullet(snake.x(), snake.y(), 0, -1);
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);
                 break;
             case KeyEvent.VK_S:
-                factory.newBullet(snake.x(), snake.y(), 0, 1);
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);
                 break;
         }
+        world.update();
 
-        if (this.snake.hp() < 0) {
+        if (this.snakes.get(id).hp() < 0) {
             this.factory.getExecutor().shutdown();
             return new LoseScreen();
         } else if (this.boss.hp() < 1) {
@@ -181,41 +191,43 @@ public class SnakeGameScreen implements Screen, Serializable {
     }
 
     @Override
-    public Screen respondToUserInput(int e) {
-        switch (e) {
-            case KeyEvent.VK_LEFT:
-                snake.moveBy(-1, 0);
-                break;
-            case KeyEvent.VK_RIGHT:
-                snake.moveBy(1, 0);
-                break;
-            case KeyEvent.VK_UP:
-                snake.moveBy(0, -1);
-                break;
-            case KeyEvent.VK_DOWN:
-                snake.moveBy(0, 1);
-                break;
-            case KeyEvent.VK_A:
-                factory.newBullet(snake.x(), snake.y(), -1, 0);
-                break;
-            case KeyEvent.VK_D:
-                factory.newBullet(snake.x(), snake.y(), 1, 0);
-                break;
-            case KeyEvent.VK_W:
-                factory.newBullet(snake.x(), snake.y(), 0, -1);
-                break;
-            case KeyEvent.VK_S:
-                factory.newBullet(snake.x(), snake.y(), 0, 1);
-                break;
-        }
+    public Screen respondToUserInput(int e, int id) {
 
-        if (this.snake.hp() < 0) {
+        if (this.snakes.get(id).hp() < 0) {
             this.factory.getExecutor().shutdown();
             return new LoseScreen();
         } else if (this.boss.hp() < 1) {
             this.factory.getExecutor().shutdown();
             return new WinScreen();
         }
+
+        switch (e) {
+            case KeyEvent.VK_LEFT:
+                snakes.get(id).moveBy(-1, 0);
+                break;
+            case KeyEvent.VK_RIGHT:
+                snakes.get(id).moveBy(1, 0);
+                break;
+            case KeyEvent.VK_UP:
+                snakes.get(id).moveBy(0, -1);
+                break;
+            case KeyEvent.VK_DOWN:
+                snakes.get(id).moveBy(0, 1);
+                break;
+            case KeyEvent.VK_A:
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);
+                break;
+            case KeyEvent.VK_D:
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);
+                break;
+            case KeyEvent.VK_W:
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);
+                break;
+            case KeyEvent.VK_S:
+                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);
+                break;
+        }
+        world.update();
         return this;
     }
 

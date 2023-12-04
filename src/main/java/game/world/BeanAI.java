@@ -37,7 +37,7 @@ public class BeanAI extends CreatureAI{
             return;
         }
 
-        if (this.factory.getTotalBeans() < CreatureFactory.maxBeans) {
+        if (this.factory.getTotalBeans() < CreatureFactory.maxBeans && creature.tile(newx, newy).compareAndSet(false, true)) {
             Creature child = this.factory.newBean();
             child.setX(newx);
             child.setY(newy);
