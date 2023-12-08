@@ -53,17 +53,6 @@ public enum Tile {
     Tile(char glyph, Color color) {
         this.glyph = glyph;
         this.color = color;
-        this.occupied = false;
     }
 
-    private boolean occupied;
-
-    public synchronized boolean compareAndSet(boolean oldVal, boolean newVal) {
-        if (occupied == oldVal) {
-            occupied = newVal;
-            return true;
-        } else {
-            return false;
-        }
-    }    
 }

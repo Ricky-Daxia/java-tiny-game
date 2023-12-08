@@ -25,18 +25,23 @@ public class Client extends JFrame implements KeyListener {
     public Selector selector;
     public SocketChannel client;
 
+    public int id;
+    public long cnt;
+
     public Client() {
         super();
-        terminal = new AsciiPanel(30, 20, AsciiFont.gold);
+        terminal = new AsciiPanel(40, 40, AsciiFont.gold);
         add(terminal);
         pack();
         addKeyListener(this);
+        id = 0;
+        cnt = 0;
     }
 
     @Override 
     public void repaint() {
         terminal.clear();
-        screen.displayOutput(terminal);
+        screen.displayOutput(terminal, id);
         super.repaint();
     }
 
@@ -109,26 +114,32 @@ public class Client extends JFrame implements KeyListener {
             try {
                 while (true) {
                     int count = app.selector.select();
-                    System.out.println(count);
+                    //System.out.println(count);
                     if (count > 0) {
                         Iterator<SelectionKey> iterator =  app.selector.selectedKeys().iterator();
                         while (iterator.hasNext()) {
                             SelectionKey selectionKey = iterator.next();
                             if (selectionKey.isReadable()) {
                                 SocketChannel channel = (SocketChannel) selectionKey.channel();
-                                ByteBuffer byteBuffer = ByteBuffer.allocate(12000);
-                                channel.read(byteBuffer);
+                                ByteBuffer byteBuffer = ByteBuffer.allocate(100000);
+                                int length = channel.read(byteBuffer);
+                                System.out.println(length);
                                 byte[] bufferArray = byteBuffer.array();
-                                System.out.println(bufferArray.length);
                                 ByteArrayInputStream bis = new ByteArrayInputStream(bufferArray);
                                 ObjectInputStream ois = new ObjectInputStream(bis);
-                                try {
-                                    app.screen = (Screen) ois.readObject();
-                                    app.repaint();
-                                } catch (Exception e) {
-                                    System.out.println("decode screen failed");
-                                } finally {
-                                    ois.close();
+                                if (app.cnt == 0) {
+                                    app.id = (int) ois.readObject();
+                                    app.cnt++;
+                                    System.out.println(length + " id= " + app.id);
+                                } else {
+                                    try {
+                                        app.screen = (Screen) ois.readObject();
+                                        app.repaint();
+                                    } catch (Exception e) {
+                                        System.out.println("decode screen failed");
+                                    } finally {
+                                        ois.close();
+                                    }                                    
                                 }
                             }
                             iterator.remove();

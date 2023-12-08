@@ -27,6 +27,7 @@ public class CreatureFactory implements Serializable {
     }
 
     public Creature newSnake(List<String> messages) {
+        System.out.println("create snake");
         Creature snake = new Creature(this.world, (char) 241, AsciiPanel.brightWhite, 50, 20, 5, 9);
         world.addAtEmptyLocation(snake);
         snake.setAttackedGlyph((char) 64);
@@ -34,7 +35,7 @@ public class CreatureFactory implements Serializable {
         snakeAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                //System.out.println("snake move");
+                System.out.println("snake move");
                 snakeAIInstance.onUpdate();
             }
         }, 0, 100, TimeUnit.MILLISECONDS));
@@ -50,10 +51,8 @@ public class CreatureFactory implements Serializable {
         bossAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                //System.out.println("boss move");
-                bossAIInstance.changeSetting();
+                System.out.println("boss move");
                 bossAIInstance.onUpdate();
-                bossAIInstance.changeSetting();
             }
         }, 0, 1, TimeUnit.SECONDS));
         return boss;

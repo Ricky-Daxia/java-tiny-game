@@ -1,7 +1,9 @@
 package game.netComponent;
 
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -35,6 +37,13 @@ public class NIOServer {
 	private final static int PORT = 9093;
 	private List<SelectionKey> clientKeys;
 
+	private int IDs;
+	private int getAndInc() {
+		int x = IDs;
+		IDs++;
+		return x;
+	}
+
 	// public static void main(String[] args) throws Exception {
 	// 	try {
 	// 		new NIOServer("localhost", 9093).startServer();
@@ -46,6 +55,7 @@ public class NIOServer {
 	public NIOServer(String address, int port) throws IOException {
 		listenAddress = new InetSocketAddress(address, port);
 		this.clientKeys = new ArrayList<>();
+		IDs = 1;
 	}
 
 	/**
@@ -68,7 +78,7 @@ public class NIOServer {
 	}
 
 	// accept client connection
-	public void accept(SelectionKey key) throws IOException {
+	public SelectionKey accept(SelectionKey key) throws IOException {
 		ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
 		SocketChannel channel = serverChannel.accept();
 		channel.configureBlocking(false);
@@ -80,7 +90,21 @@ public class NIOServer {
 		 * Register channel with selector for further IO (record it for read/write
 		 * operations, here we have used read operation)
 		 */
-		clientKeys.add(channel.register(this.selector, SelectionKey.OP_READ));
+		SelectionKey selectionKey = channel.register(this.selector, SelectionKey.OP_READ);
+		int id = getAndInc();
+		selectionKey.attach(id);
+		clientKeys.add(selectionKey);
+		// write 
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(id);
+			oos.close();
+			reply(bos.toByteArray(), selectionKey);
+		} catch (Exception e) {
+			System.out.println("write id failed");
+		}
+		return selectionKey;
 	}
 
 	public List<SelectionKey> getClientKeys() {
@@ -131,7 +155,7 @@ public class NIOServer {
 	// }
 
 	public void reply(byte[] message, SelectionKey targetKey) {
-		System.out.println("in reply");
+		// System.out.println("in reply");
 		try {
 			for (SelectionKey selectionKey: selector.keys()) {
 				Channel channel = selectionKey.channel();

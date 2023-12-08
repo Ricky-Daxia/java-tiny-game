@@ -101,7 +101,7 @@ public class Creature implements Serializable {
         return this.hp;
     }
 
-    public void modifyHP(int amount) {
+    public synchronized void modifyHP(int amount) {
         this.hp += amount;
 
         if (this.hp < 1) {
@@ -163,17 +163,20 @@ public class Creature implements Serializable {
     public void tryMove(int x, int y) {
         if (!canEnter(x, y)) {
             System.out.println("try to move to impossible pos" + x + " " + y);
+            if (ai instanceof SnakeAI) {
+                return;
+            }
             modifyHP(-maxHP);
             world.remove(this);
         } else {
             Creature other = world.creature(x, y);
             if (other == null || other.bulletLike()) {
                 if (!bulletlike) {
-                    world.tile(x(), y()).compareAndSet(true, false);
-                    while (!tile(x, y).compareAndSet(false, true)) ;
+                    world.occupied[x()][y()].compareAndSet(true, false);
+                    while (world.occupied[x][y].compareAndSet(false, true)) ;
                     setX(x);
                     setY(y);
-                } else {
+                } else { // bullet
                     setX(x);
                     setY(y);                    
                 }

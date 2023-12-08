@@ -54,6 +54,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     private void createCreatures(CreatureFactory creatureFactory) {
         // this.snake = creatureFactory.newSnake(this.messages);
         this.snakes = new HashMap<>();
+        // snakes.put(0, creatureFactory.newSnake(this.messages)); 
 
         for (int i = 0; i < 5; i++) {
             creatureFactory.newBean();
@@ -62,21 +63,26 @@ public class SnakeGameScreen implements Screen, Serializable {
         this.boss = creatureFactory.newBoss(this.messages, creatureFactory);
     }
 
+    public void registerSnake(int id) {
+        this.snakes.put(id, this.factory.newSnake(this.messages));
+    }
+
     private void createWorld() {
         world = new WorldBuilder(WORLD_WIDTH, WORLD_HEIGHT).makeRectangle().build();
     }
 
     @Override
     public void displayOutput(AsciiPanel terminal, int id) {
-        if (!snakes.containsKey(id)) {
-            System.out.println("snake with id " + id + " not exist");
-            return;
-        }
+
         // Terrain and creatures
         displayTiles(terminal, getScrollX(), getScrollY());
         // Player
         //((GlyphDelegate) snake.getAI()).printGlyph(terminal, getScrollX(), getScrollY());
         // Stats
+        if (!snakes.containsKey(id)) {
+            System.out.println("snake with id " + id + " not exist");
+            return;
+        }        
         String stats = String.format("%3d/%3d hp", snakes.get(id).hp(), snakes.get(id).maxHP()); // use id
         terminal.write(stats, 1, 0);
         // Messages
@@ -99,21 +105,35 @@ public class SnakeGameScreen implements Screen, Serializable {
             }
         }
         // Show creatures
-        world.lock();
+        // world.lock();
         for (Creature creature : world.getCreatures()) {
             if (creature.x() >= left && creature.x() < left + SCREEN_WIDTH && creature.y() >= top
                     && creature.y() < top + SCREEN_HEIGHT) {
                 // if (snake.canSee(creature.x(), creature.y())) {
-                if (creature.getAI() instanceof GlyphDelegate) {
-                    ((GlyphDelegate) creature.getAI()).printGlyph(terminal, left, top);
-                } else {
+                // if (creature.getAI() instanceof GlyphDelegate) {
+                //     ((GlyphDelegate) creature.getAI()).printGlyph(terminal, left, top);
+                // } else {
                     terminal.write(creature.glyph(), creature.x() - left, creature.y() - top, creature.color());
-                }
+                // }
                 // }
             }
         }
-        world.unlock();
+        // world.unlock();
         // Creatures can choose their next action now
+        // world.update();
+    }
+
+    public void update() {
+        System.out.println("snakes.size() = " + snakes.size());
+        synchronized (snakes) {
+            int[] manPos = new int[snakes.size()];
+            int pos = 0;
+            for (Creature creature: snakes.values()) {
+                manPos[pos] = (creature.x() << 10) | creature.y();
+                pos++;
+            }
+            world.setManPos(manPos);      
+        }
         world.update();
     }
 
@@ -152,6 +172,14 @@ public class SnakeGameScreen implements Screen, Serializable {
         // break;
         // }
 
+        if (this.snakes.get(id).hp() < 0) {
+            this.factory.getExecutor().shutdown();
+            return new LoseScreen();
+        } else if (this.boss.hp() < 1) {
+            this.factory.getExecutor().shutdown();
+            return new WinScreen();
+        }
+
         switch (key.getKeyCode()) {
             case KeyEvent.VK_LEFT:
                 snakes.get(id).moveBy(-1, 0);
@@ -180,13 +208,6 @@ public class SnakeGameScreen implements Screen, Serializable {
         }
         world.update();
 
-        if (this.snakes.get(id).hp() < 0) {
-            this.factory.getExecutor().shutdown();
-            return new LoseScreen();
-        } else if (this.boss.hp() < 1) {
-            this.factory.getExecutor().shutdown();
-            return new WinScreen();
-        }
         return this;
     }
 
@@ -195,6 +216,7 @@ public class SnakeGameScreen implements Screen, Serializable {
 
         if (this.snakes.get(id).hp() < 0) {
             this.factory.getExecutor().shutdown();
+            this.snakes.remove(id);
             return new LoseScreen();
         } else if (this.boss.hp() < 1) {
             this.factory.getExecutor().shutdown();

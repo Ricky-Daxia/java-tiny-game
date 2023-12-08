@@ -23,7 +23,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
 
     public ApplicationMain() {
         super();
-        terminal = new AsciiPanel(30, 20, AsciiFont.gold);
+        terminal = new AsciiPanel(40, 40, AsciiFont.gold);
         add(terminal);
         pack();
         screen = new StartScreen();
@@ -35,12 +35,12 @@ public class ApplicationMain extends JFrame implements KeyListener {
     @Override
     public void repaint() {
         terminal.clear();
-        screen.displayOutput(terminal);
+        screen.displayOutput(terminal, 0);
         super.repaint();
     }
 
     public void keyPressed(KeyEvent e) {
-        screen = screen.respondToUserInput(e);
+        screen = screen.respondToUserInput(e, 0);
         repaint();
     }
 
@@ -67,7 +67,7 @@ public class ApplicationMain extends JFrame implements KeyListener {
                     oos.writeObject(app.screen);
                     oos.close();
                     byte[] res = bos.toByteArray();
-                    System.out.println(res.length);
+                    //System.out.println(res.length);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

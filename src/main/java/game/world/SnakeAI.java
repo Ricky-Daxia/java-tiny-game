@@ -67,14 +67,14 @@ public class SnakeAI extends CreatureAI {
         creature.modifyHP(-another.attackValue());
         if (another.hp() < 1) {
             creature.getWorld().remove(another);
-            creature.tryMove(another.x(), another.y());
+            //creature.tryMove(another.x(), another.y());
         }
     }
 
     @Override
     public void onUpdate() {
         World world = creature.getWorld();
-        world.setManPos(creature.x(), creature.y());
+        //world.setManPos(creature.x(), creature.y());
         if (creature.getAttacked()) {
             creature.changeAttacked();
         } 

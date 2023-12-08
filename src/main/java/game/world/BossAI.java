@@ -13,21 +13,18 @@ public class BossAI extends CreatureAI {
 
     private List<String> messages;
 
-    private boolean setByTimer;
-
     private CreatureFactory factory;
 
     private int interval;
 
-    private int manPrevX;
-    private int manPrevY;
+    private int[] manPrev;
     
     public BossAI(Creature creature, List<String> messages, CreatureFactory factory) {
         super(creature);
         this.messages = messages;
-        setByTimer = false;
         this.factory = factory;
         interval = 0;
+        manPrev = null;
     }
 
     @Override
@@ -35,38 +32,41 @@ public class BossAI extends CreatureAI {
         creature.tryMove(x, y);
     }
 
-    public void changeSetting() {
-        setByTimer = !setByTimer;
-    }
-
     private int[][] analyse(World world) {
         int width = world.width();
         int height = world.height();
         int[][] dist = new int[width][height];
         boolean[][] vis = new boolean[width][height];
-        int manX = world.getManPosX();
-        int manY = world.getManPosY();
-        System.out.println("man in" + manX + " " + manY);
+        int[] manPos = world.getManPos();
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 dist[i][j] = 100000;
                 vis[i][j] = false;
             }
         }
-        dist[manX][manY] = 0;
-        vis[manX][manY] = true;
+        if (manPos == null) {
+            return dist;
+        }
         Queue<int[]> queue = new ArrayDeque<>();
-        queue.add(new int[]{manX, manY});
+        for (int mask: manPos) {
+            int x = mask >> 10 & 0x3ff, y = mask & 0x3ff;
+            dist[x][y] = 0;
+            vis[x][y] = true;
+            queue.add(new int[]{x, y});
+        }
         while (queue.size() > 0) {
-            int[] front = queue.poll();
-            int x = front[0], y = front[1];
-            for (int i = 0; i < 4; i++) {
-                int newX = x + dx[i], newY = y + dy[i];
-                if (world.tile(newX, newY).isGround() && dist[newX][newY] > dist[x][y] + 1) {
-                    queue.add(new int[]{newX, newY});
-                    vis[newX][newY] = true;
-                    dist[newX][newY] = dist[x][y] + 1;
-                }
+            int sz = queue.size();
+            for (; sz > 0; sz--) {
+                int[] front = queue.poll();
+                int x = front[0], y = front[1];
+                for (int i = 0; i < 4; i++) {
+                    int newX = x + dx[i], newY = y + dy[i];
+                    if (world.tile(newX, newY).isGround() && dist[newX][newY] > dist[x][y] + 1) {
+                        queue.add(new int[]{newX, newY});
+                        vis[newX][newY] = true;
+                        dist[newX][newY] = dist[x][y] + 1;
+                    }
+                }                
             }
         }
         return dist;
@@ -74,9 +74,6 @@ public class BossAI extends CreatureAI {
 
     @Override
     public void onUpdate() {
-        if (!setByTimer) {
-            return;
-        }
         World world = creature.getWorld();
         if (creature.hp() < 1) {
             world.remove(creature);
@@ -107,12 +104,17 @@ public class BossAI extends CreatureAI {
 
         interval++;
         if (interval == 1) {
-            manPrevX = world.getManPosX();
-            manPrevY = world.getManPosY();
+            manPrev = world.getManPos();
         } else if (interval == 5) {
-            for (int i = 0; i < 4; i++) {
-                int dogX = manPrevX + dx[i], dogY = manPrevY + dy[i];
-                factory.newDog(dogX, dogY);
+            if (manPrev == null) {
+                return;
+            }
+            for (int mask: manPrev) {
+                int manX = mask >> 10 & 0x3ff, manY = mask & 0x3ff;
+                for (int i = 0; i < 4; i++) {
+                    int dogX = manX + dx[i], dogY = manY + dy[i];
+                    factory.newDog(dogX, dogY);
+                }                
             }
             interval = 0;
         }
@@ -128,7 +130,7 @@ public class BossAI extends CreatureAI {
         }
         if (another.hp() < 1) {
             creature.getWorld().remove(another);
-            creature.tryMove(another.x(), another.y());
+            //creature.tryMove(another.x(), another.y());
         }
     }
 

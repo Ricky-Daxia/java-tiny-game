@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class World implements Serializable {
@@ -13,6 +14,7 @@ public class World implements Serializable {
     private int height;
     private List<Creature> creatures;
     private ReentrantLock creaturesLock;
+    public transient AtomicBoolean[][] occupied;
 
     public World(Tile[][] tiles) {
         this.tiles = tiles;
@@ -20,6 +22,12 @@ public class World implements Serializable {
         this.height = tiles[0].length;
         this.creatures = new ArrayList<>();
         this.creaturesLock = new ReentrantLock();
+        occupied = new AtomicBoolean[this.width][this.height];
+        for (int i = 0; i < this.width; i++) {
+            for (int j = 0; j < this.height; j++) {
+                occupied[i][j] = new AtomicBoolean();
+            }
+        }
     }
 
     public void lock() {
@@ -67,9 +75,8 @@ public class World implements Serializable {
         do {
             x = (int) (Math.random() * this.width);
             y = (int) (Math.random() * this.height);
-        } while (!tile(x, y).isGround() || this.creature(x, y) != null 
-            || !tile(x, y).compareAndSet(false, true));
-
+        } while (!tile(x, y).isGround() || this.creature(x, y) != null || !this.occupied[x][y].compareAndSet(false, true));
+    
         creature.setX(x);
         creature.setY(y);
 
@@ -77,7 +84,8 @@ public class World implements Serializable {
         this.creatures.add(creature);
         this.creaturesLock.unlock();
     }
-    // only for bullet to use 
+
+    // only for bullet to use, bullets can occupy the same place 
     public void addAtLocation(Creature creature, int x, int y) {
         if (!tile(x, y).isGround() || this.creature(x, y) != null) {
             return;
@@ -114,7 +122,7 @@ public class World implements Serializable {
         creaturesLock.lock();  
         this.creatures.remove(target);
         creaturesLock.unlock();
-        target.tile(target.x(), target.y()).compareAndSet(true, false);
+        this.occupied[target.x()][target.y()].compareAndSet(true, false);
     }
     // lock
     public void update() {
@@ -130,18 +138,26 @@ public class World implements Serializable {
         creaturesLock.unlock();
     }
 
-    private int manPosX;
-    private int manPosY;
-    public void setManPos(int x, int y) {
-        manPosX = x;
-        manPosY = y;
+    // private int manPosX;
+    // private int manPosY;
+    // public void setManPos(int x, int y) {
+    //     manPosX = x;
+    //     manPosY = y;
+    // }
+    // public int getManPosX() {
+    //     return manPosX;
+    // }
+    // public int getManPosY() {
+    //     return manPosY;
+    // }
+    private int[] manPos;
+    public void setManPos(int[] manPos) {
+        this.manPos = manPos;
     }
-    public int getManPosX() {
-        return manPosX;
+    public int[] getManPos() {
+        return manPos;
     }
-    public int getManPosY() {
-        return manPosY;
-    }
+
 
     public void setPolluted(int x, int y) {
         for (int i = 0; i < width; i++) {
