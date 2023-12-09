@@ -106,7 +106,7 @@ public class Reactor {
     }
 
 	public void reply(byte[] message, SelectionKey targetKey) {
-		System.out.println("in reply");
+		//System.out.println("in reply");
 		try {
 			for (SelectionKey selectionKey: demultiplexer.keys()) {
 				Channel channel = selectionKey.channel();
@@ -127,7 +127,7 @@ public class Reactor {
 		int[] keyCodes = new int[data.length / Integer.BYTES];
 		for (int i = 0; i < keyCodes.length; i++) {
 			keyCodes[i] = byteBuffer.getInt();
-			System.out.println("keyCode " + keyCodes[i]);
+			//System.out.println("keyCode " + keyCodes[i]);
 		}
         server.respondToUserInput(keyCodes, selectionKey);
     }

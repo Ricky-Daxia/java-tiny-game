@@ -2,6 +2,7 @@ package game.world;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,14 @@ public class CreatureFactory implements Serializable {
         return exector;
     }
 
+    public boolean emptyExecutor() {
+        return exector == null;
+    }
+
+    public void setExecutor(ScheduledThreadPoolExecutor executor) {
+        this.exector = executor;
+    }
+
     public CreatureFactory(World world) {
         this.world = world;
         totalBeans = 0;
@@ -35,11 +44,21 @@ public class CreatureFactory implements Serializable {
         snakeAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                System.out.println("snake move");
+                //System.out.println("snake move");
                 snakeAIInstance.onUpdate();
             }
         }, 0, 100, TimeUnit.MILLISECONDS));
         return snake;
+    }
+
+    public void setSnakeTask(SnakeAI snake) {
+        snake.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                //System.out.println("snake move");
+                snake.onUpdate();
+            }
+        }, 0, 100, TimeUnit.MILLISECONDS));    
     }
 
     public Creature newBoss(List<String> messages, CreatureFactory factory) {
@@ -51,11 +70,21 @@ public class CreatureFactory implements Serializable {
         bossAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                System.out.println("boss move");
+                //System.out.println("boss move");
                 bossAIInstance.onUpdate();
             }
         }, 0, 1, TimeUnit.SECONDS));
         return boss;
+    }
+
+    public void setBossTask(BossAI boss) {
+        boss.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                //System.out.println("boss move");
+                boss.onUpdate();
+            }
+        }, 0, 1, TimeUnit.SECONDS)); 
     }
 
     public Creature newBean() {

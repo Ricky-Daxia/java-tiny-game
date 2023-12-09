@@ -129,7 +129,7 @@ public class NIOServer {
 
 		byte[] data = new byte[numRead];
 		System.arraycopy(buffer.array(), 0, data, 0, numRead);
-		System.out.println("Got: " + new String(data));
+		//System.out.println("Got: " + new String(data));
 
         int[] keyEvents = parseData(data);
         return keyEvents;
@@ -140,7 +140,7 @@ public class NIOServer {
 		int[] keyCodes = new int[data.length / Integer.BYTES];
 		for (int i = 0; i < keyCodes.length; i++) {
 			keyCodes[i] = byteBuffer.getInt();
-			System.out.println("keyCode " + keyCodes[i]);
+			//System.out.println("keyCode " + keyCodes[i]);
 		}
         return keyCodes;
     }

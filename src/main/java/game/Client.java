@@ -47,7 +47,7 @@ public class Client extends JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("key pressed");
+        //System.out.println("key pressed");
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
         buffer.putInt(e.getKeyCode());
         buffer.flip();
@@ -123,14 +123,14 @@ public class Client extends JFrame implements KeyListener {
                                 SocketChannel channel = (SocketChannel) selectionKey.channel();
                                 ByteBuffer byteBuffer = ByteBuffer.allocate(100000);
                                 int length = channel.read(byteBuffer);
-                                System.out.println(length);
+                                //System.out.println(length);
                                 byte[] bufferArray = byteBuffer.array();
                                 ByteArrayInputStream bis = new ByteArrayInputStream(bufferArray);
                                 ObjectInputStream ois = new ObjectInputStream(bis);
                                 if (app.cnt == 0) {
                                     app.id = (int) ois.readObject();
                                     app.cnt++;
-                                    System.out.println(length + " id= " + app.id);
+                                    //System.out.println(length + " id= " + app.id);
                                 } else {
                                     try {
                                         app.screen = (Screen) ois.readObject();

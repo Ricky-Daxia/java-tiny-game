@@ -107,13 +107,14 @@ public class BossAI extends CreatureAI {
             manPrev = world.getManPos();
         } else if (interval == 5) {
             if (manPrev == null) {
-                return;
-            }
-            for (int mask: manPrev) {
-                int manX = mask >> 10 & 0x3ff, manY = mask & 0x3ff;
-                for (int i = 0; i < 4; i++) {
-                    int dogX = manX + dx[i], dogY = manY + dy[i];
-                    factory.newDog(dogX, dogY);
+                System.out.println("man null????");
+            } else {
+                for (int mask: manPrev) {
+                    int manX = mask >> 10 & 0x3ff, manY = mask & 0x3ff;
+                    for (int i = 0; i < 4; i++) {
+                        int dogX = manX + dx[i], dogY = manY + dy[i];
+                        factory.newDog(dogX, dogY);
+                    }                
                 }                
             }
             interval = 0;

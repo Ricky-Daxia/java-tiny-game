@@ -55,7 +55,7 @@ public class ReadEventHandler implements EventHandler {
 
 		byte[] data = new byte[numRead];
 		System.arraycopy(inputBuffer.array(), 0, data, 0, numRead);
-		System.out.println("Got: " + new String(data));
+		//System.out.println("Got: " + new String(data));
 
         reactor.parseData(data, handle);
     }

@@ -74,7 +74,7 @@ public class ServerMain extends JFrame {
                         System.out.println("empty attachment");
                         continue;
                     }
-                    System.out.println((int)key.attachment());
+                    //System.out.println((int)key.attachment());
                     switch (states.get((int)key.attachment())) {
                         case 0:
                             oos.writeObject(startScreen);
@@ -91,7 +91,7 @@ public class ServerMain extends JFrame {
                         default:
                             break;
                     }
-                    System.out.println((int)key.attachment() + " " + states.get((int)key.attachment()));
+                    //System.out.println((int)key.attachment() + " " + states.get((int)key.attachment()));
                     oos.close();
                     reactor.reply(bos.toByteArray(), key);
                 } catch (Exception e) {

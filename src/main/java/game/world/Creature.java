@@ -180,15 +180,15 @@ public class Creature implements Serializable {
                     setX(x);
                     setY(y);                    
                 }
-                System.out.println("tryMove set");
+                //System.out.println("tryMove set");
             } else {
                 if (this.bulletlike && other.getAI() instanceof SnakeAI) {
                     System.out.println("bullet cannot hurt man");
                     return;
                 }
                 ai.attack(other);
-                System.out.println((int)other.glyph);
-                System.out.println("tryMove attack");
+                //System.out.println((int)other.glyph);
+                //System.out.println("tryMove attack");
             }
         }
     }

@@ -6,10 +6,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import game.asciiPanel.AsciiPanel;
+import game.world.BossAI;
 import game.world.Creature;
 import game.world.CreatureFactory;
+import game.world.SnakeAI;
 import game.world.World;
 import game.world.WorldBuilder;
 
@@ -80,7 +84,7 @@ public class SnakeGameScreen implements Screen, Serializable {
         //((GlyphDelegate) snake.getAI()).printGlyph(terminal, getScrollX(), getScrollY());
         // Stats
         if (!snakes.containsKey(id)) {
-            System.out.println("snake with id " + id + " not exist");
+            //System.out.println("snake with id " + id + " not exist");
             return;
         }        
         String stats = String.format("%3d/%3d hp", snakes.get(id).hp(), snakes.get(id).maxHP()); // use id
@@ -121,10 +125,11 @@ public class SnakeGameScreen implements Screen, Serializable {
         // world.unlock();
         // Creatures can choose their next action now
         // world.update();
+        // update();
     }
 
     public void update() {
-        System.out.println("snakes.size() = " + snakes.size());
+        //System.out.println("snakes.size() = " + snakes.size());
         synchronized (snakes) {
             int[] manPos = new int[snakes.size()];
             int pos = 0;
@@ -251,6 +256,29 @@ public class SnakeGameScreen implements Screen, Serializable {
         }
         world.update();
         return this;
+    }
+
+    // sync with record
+    public void synchronize() {
+        if (world.occupied == null) {
+            world.occupied = new AtomicBoolean[world.width()][world.height()];
+            for (int i = 0; i < world.width(); i++) {
+                for (int j = 0; j < world.height(); j++) {
+                    world.occupied[i][j] = new AtomicBoolean();
+                }
+            }
+            for (Creature creature: world.getCreatures()) {
+                int x = creature.x(), y = creature.y();
+                world.occupied[x][y].compareAndSet(false, true);
+            }
+        }
+        if (this.factory.emptyExecutor()) {
+            this.factory.setExecutor(new ScheduledThreadPoolExecutor(20));
+            for (Creature snake: this.snakes.values()) {
+                this.factory.setSnakeTask((SnakeAI) snake.getAI());
+            }            
+            this.factory.setBossTask((BossAI) this.boss.getAI());
+        }
     }
 
 }
