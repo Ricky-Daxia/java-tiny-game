@@ -973,4 +973,8 @@ public class AsciiPanel extends JPanel {
                 backgroundColors[x][y] = data.backgroundColor;
             }
     }
+
+    public char[][] getChars() {
+        return chars;
+    }
 }

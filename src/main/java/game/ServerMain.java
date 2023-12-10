@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import game.asciiPanel.AsciiFont;
 import game.asciiPanel.AsciiPanel;
 import game.netComponent.AcceptEventHandler;
-import game.netComponent.NIOServer;
 import game.netComponent.Reactor;
 import game.netComponent.ReadEventHandler;
 import game.netComponent.WriteEventHandler;
@@ -165,29 +164,32 @@ public class ServerMain extends JFrame {
 
         
         try {
-            ServerSocketChannel server = ServerSocketChannel.open();
-            server.socket().bind(new InetSocketAddress(9093));
-            server.configureBlocking(false);
-
-            serverApp.reactor = new Reactor(serverApp);
-            serverApp.reactor.registerChannel(SelectionKey.OP_ACCEPT, server);
-
-            serverApp.reactor.registerEventHandler(
-                    SelectionKey.OP_ACCEPT, new AcceptEventHandler(
-                    serverApp.reactor.getDemultiplexer(), serverApp.reactor));
-
-            serverApp.reactor.registerEventHandler(
-                    SelectionKey.OP_READ, new ReadEventHandler(
-                    serverApp.reactor.getDemultiplexer(), serverApp.reactor));
-
-            serverApp.reactor.registerEventHandler(
-                    SelectionKey.OP_WRITE, new WriteEventHandler());
-
-            serverApp.reactor.run(); // Run the dispatcher loop
-
+            serverApp.startService();
         } catch (Exception e) {
             e.printStackTrace();
         }
         
+    }
+
+    public void startService() throws Exception {
+        ServerSocketChannel server = ServerSocketChannel.open();
+        server.socket().bind(new InetSocketAddress(9093));
+        server.configureBlocking(false);
+
+        reactor = new Reactor(this);
+        reactor.registerChannel(SelectionKey.OP_ACCEPT, server);
+
+        reactor.registerEventHandler(
+                SelectionKey.OP_ACCEPT, new AcceptEventHandler(
+                reactor.getDemultiplexer(), reactor));
+
+        reactor.registerEventHandler(
+                SelectionKey.OP_READ, new ReadEventHandler(
+                reactor.getDemultiplexer(), reactor));
+
+        reactor.registerEventHandler(
+                SelectionKey.OP_WRITE, new WriteEventHandler());
+
+        reactor.run(); // Run the dispatcher loop
     }
 }

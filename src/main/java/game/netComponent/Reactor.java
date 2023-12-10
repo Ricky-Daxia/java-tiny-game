@@ -77,23 +77,7 @@ public class Reactor {
                         while (handleIterator.hasNext()) {
                             SelectionKey handle = handleIterator.next();
 
-                            if (handle.isAcceptable()) {
-                                EventHandler handler =
-                                        registeredHandlers.get(SelectionKey.OP_ACCEPT);
-                                handler.handleEvent(handle);
-                            }
-
-                            if (handle.isReadable()) {
-                                EventHandler handler =
-                                        registeredHandlers.get(SelectionKey.OP_READ);
-                                handler.handleEvent(handle);
-                            }
-
-                            if (handle.isWritable()) {
-                                EventHandler handler =
-                                        registeredHandlers.get(SelectionKey.OP_WRITE);
-                                handler.handleEvent(handle);
-                            }           
+                            handleEvent(handle);
                                                  
                             handleIterator.remove();
                         }
@@ -103,6 +87,26 @@ public class Reactor {
                 }
         //     }
         // }).start();
+    }
+
+    public void handleEvent(SelectionKey handle) throws Exception {
+        if (handle.isAcceptable()) {
+            EventHandler handler =
+                    registeredHandlers.get(SelectionKey.OP_ACCEPT);
+            handler.handleEvent(handle);
+        }
+
+        if (handle.isReadable()) {
+            EventHandler handler =
+                    registeredHandlers.get(SelectionKey.OP_READ);
+            handler.handleEvent(handle);
+        }
+
+        if (handle.isWritable()) {
+            EventHandler handler =
+                    registeredHandlers.get(SelectionKey.OP_WRITE);
+            handler.handleEvent(handle);
+        }  
     }
 
 	public void reply(byte[] message, SelectionKey targetKey) {
@@ -123,13 +127,18 @@ public class Reactor {
 	}
 
     public void parseData(byte[] data, SelectionKey selectionKey) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-		int[] keyCodes = new int[data.length / Integer.BYTES];
-		for (int i = 0; i < keyCodes.length; i++) {
-			keyCodes[i] = byteBuffer.getInt();
-			//System.out.println("keyCode " + keyCodes[i]);
-		}
-        server.respondToUserInput(keyCodes, selectionKey);
+        try {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+            int[] keyCodes = new int[data.length / Integer.BYTES];
+            for (int i = 0; i < keyCodes.length; i++) {
+                keyCodes[i] = byteBuffer.getInt();
+                //System.out.println("keyCode " + keyCodes[i]);
+            }
+            server.respondToUserInput(keyCodes, selectionKey);            
+        } catch (NullPointerException e) {
+            System.out.println("parse data with null pointer!!!");
+        }
+
     }
 
 }

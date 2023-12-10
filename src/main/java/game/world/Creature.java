@@ -127,9 +127,9 @@ public class Creature implements Serializable {
         return this.visionRadius;
     }
 
-    public boolean canSee(int wx, int wy) {
-        return ai.canSee(wx, wy);
-    }
+    // public boolean canSee(int wx, int wy) {
+    //     return ai.canSee(wx, wy);
+    // }
 
     public Tile tile(int wx, int wy) {
         return world.tile(wx, wy);
