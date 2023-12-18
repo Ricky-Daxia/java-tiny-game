@@ -9,4 +9,23 @@ public class ApplicationMainTest {
         assertEquals(new ApplicationMain().recordCnt, 0);
     }
     
+    @Test 
+    public void testApplicationMain() {
+        ApplicationMain.main(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void test1() {
+        new ApplicationMain().keyPressed(null);
+    }
+
+    @Test 
+    public void test2() {
+        new ApplicationMain().keyReleased(null);
+    }
+
+    @Test 
+    public void test3() {
+        new ApplicationMain().keyTyped(null);
+    }
 }

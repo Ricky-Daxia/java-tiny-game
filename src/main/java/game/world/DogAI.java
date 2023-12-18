@@ -38,10 +38,10 @@ public class DogAI extends CreatureAI {
         throw new UnsupportedOperationException("Unimplemented method 'onEnter'");
     }
 
-    @Override
-    public void onNotify(String message) {
-        throw new UnsupportedOperationException("Unimplemented method 'onNotify'");
-    }
+    // @Override
+    // public void onNotify(String message) {
+    //     throw new UnsupportedOperationException("Unimplemented method 'onNotify'");
+    // }
 
     @Override
     public void attack(Creature another) {

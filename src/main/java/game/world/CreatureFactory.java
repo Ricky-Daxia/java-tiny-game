@@ -35,12 +35,12 @@ public class CreatureFactory implements Serializable {
         exector = new ScheduledThreadPoolExecutor(20);
     }
 
-    public Creature newSnake(List<String> messages) {
+    public Creature newSnake() {
         System.out.println("create snake");
         Creature snake = new Creature(this.world, (char) 241, AsciiPanel.brightWhite, 50, 20, 5, 9);
         world.addAtEmptyLocation(snake);
         snake.setAttackedGlyph((char) 64);
-        SnakeAI snakeAIInstance = new SnakeAI(snake, messages);
+        SnakeAI snakeAIInstance = new SnakeAI(snake);
         snakeAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -61,12 +61,12 @@ public class CreatureFactory implements Serializable {
         }, 0, 100, TimeUnit.MILLISECONDS));    
     }
 
-    public Creature newBoss(List<String> messages, CreatureFactory factory) {
+    public Creature newBoss(CreatureFactory factory) {
         Creature boss = new Creature(this.world, (char) 2, AsciiPanel.brightBlack, 10, 10, 5, 0);
         boss.modifyHP(boss.maxHP());
         world.addAtEmptyLocation(boss);
         world.setPolluted(boss.x(), boss.y());
-        BossAI bossAIInstance = new BossAI(boss, messages, factory);
+        BossAI bossAIInstance = new BossAI(boss, factory);
         bossAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {

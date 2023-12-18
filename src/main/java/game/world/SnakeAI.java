@@ -5,11 +5,11 @@ import java.util.List;
 public class SnakeAI extends CreatureAI {
 
 
-    private List<String> messages;
+    // private List<String> messages;
 
-    public SnakeAI(Creature creature, List<String> messages) {
+    public SnakeAI(Creature creature) {
         super(creature);
-        this.messages = messages;
+        // this.messages = messages;
         
         //the creature is virtually the first piece of the snake
     }
@@ -92,10 +92,10 @@ public class SnakeAI extends CreatureAI {
         }
     }
 
-    @Override
-    public void onNotify(String message) {
-        this.messages.add(message);
-    }
+    // @Override
+    // public void onNotify(String message) {
+    //     this.messages.add(message);
+    // }
 
     // @Override
     // public void printGlyph(AsciiPanel terminal, int offsetX, int offsetY) {

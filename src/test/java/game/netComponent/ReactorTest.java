@@ -3,40 +3,21 @@ package game.netComponent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.InetSocketAddress;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-import game.ServerMain;
-
 public class ReactorTest {
 
-    private static ServerMain server;
     private static Reactor reactor;
 
     @BeforeClass
     public static void init() throws Exception {
-        server = new ServerMain();
-        reactor = new Reactor(server);
-        ServerSocketChannel channel = ServerSocketChannel.open();
-        channel.socket().bind(new InetSocketAddress(9093));
-        channel.configureBlocking(false);
-        reactor.registerChannel(SelectionKey.OP_ACCEPT, channel);
-        reactor.registerEventHandler(
-                SelectionKey.OP_ACCEPT, new AcceptEventHandler(
-                reactor.getDemultiplexer(), reactor));
-        reactor.registerEventHandler(
-                SelectionKey.OP_READ, new ReadEventHandler(
-                reactor.getDemultiplexer(), reactor));
-        reactor.registerEventHandler(
-                SelectionKey.OP_WRITE, new WriteEventHandler());
+        reactor = new Reactor(null);
+        new ReactorManager().startReactor(null);
     }
 
     @Test 

@@ -7,7 +7,6 @@ import org.mockito.Mockito;
 
 import game.asciiPanel.AsciiFont;
 import game.asciiPanel.AsciiPanel;
-import game.screen.SnakeGameScreen;
 
 public class SnakeGameScreenTest {
     @Test 

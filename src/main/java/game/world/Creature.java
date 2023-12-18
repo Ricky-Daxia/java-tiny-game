@@ -16,10 +16,9 @@ public class Creature implements Serializable {
         return world;
     }
 
-    private int x, prevX;
+    private int x;
 
     public void setX(int x) {
-        this.prevX = this.x;
         this.x = x;
     }
 
@@ -27,14 +26,9 @@ public class Creature implements Serializable {
         return x;
     }
 
-    public int prevX() {
-        return prevX;
-    }
-
-    private int y, prevY;
+    private int y;
 
     public void setY(int y) {
-        this.prevY = this.y;
         this.y = y;
     }
 
@@ -42,9 +36,6 @@ public class Creature implements Serializable {
         return y;
     }
 
-    public int prevY() {
-        return prevY;
-    }
 
     private char glyph;
     private char attackedGlyph;
@@ -103,10 +94,14 @@ public class Creature implements Serializable {
 
     public synchronized void modifyHP(int amount) {
         this.hp += amount;
-
-        if (this.hp < 1) {
+        if (this.ai instanceof SnakeAI) {
+            if (this.hp < 0) {
+                world.remove(this);
+            }
+        } else if (this.hp < 1) {
             world.remove(this);
         }
+        notifyAll();
     }
 
     private int attackValue;
@@ -202,9 +197,9 @@ public class Creature implements Serializable {
         return world.tile(x, y).isGround();
     }
 
-    public void notify(String message, Object... params) {
-        ai.onNotify(String.format(message, params));
-    }
+    // public void notify(String message, Object... params) {
+    //     ai.onNotify(String.format(message, params));
+    // }
 
     public Creature(World world, char glyph, Color color, int maxHP, int attack, int defense, int visionRadius) {
         this.world = world;

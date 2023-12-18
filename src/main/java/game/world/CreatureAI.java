@@ -47,7 +47,7 @@ abstract class CreatureAI implements Serializable {
 
     public abstract void attack(Creature another);
 
-    public abstract void onNotify(String message);
+    // public abstract void onNotify(String message);
     
 
     // public boolean canSee(int x, int y) {

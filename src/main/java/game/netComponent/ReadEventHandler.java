@@ -2,6 +2,7 @@ package game.netComponent;
 
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -43,20 +44,22 @@ public class ReadEventHandler implements EventHandler {
         //         demultiplexer, SelectionKey.OP_WRITE, inputBuffer);
 
         int numRead = -1;
-		numRead = socketChannel.read(inputBuffer);
-
-		if (numRead == -1) {
+		try {
+            numRead = socketChannel.read(inputBuffer);
+        } catch (SocketException socketException) {
+            // reactor.getClientKeys().remove(handle);
 			Socket socket = socketChannel.socket();
 			SocketAddress remoteAddr = socket.getRemoteSocketAddress();
 			System.out.println("Connection closed by client: " + remoteAddr);
 			socketChannel.close();
-			handle.cancel();
-		}
-
-		byte[] data = new byte[numRead];
-		System.arraycopy(inputBuffer.array(), 0, data, 0, numRead);
-		//System.out.println("Got: " + new String(data));
-
-        reactor.parseData(data, handle);
+			handle.cancel();         
+            return; 
+        }
+        if (numRead != -1) {
+            byte[] data = new byte[numRead];
+            System.arraycopy(inputBuffer.array(), 0, data, 0, numRead);
+            //System.out.println("Got: " + new String(data));
+            reactor.parseData(data, handle);            
+        }
     }
 }

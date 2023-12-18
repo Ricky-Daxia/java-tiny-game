@@ -1,7 +1,6 @@
 package game.world;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Queue;
 
 public class BossAI extends CreatureAI {
@@ -11,7 +10,7 @@ public class BossAI extends CreatureAI {
     private int[] dx = {-1, 0, 1, 0};
     private int[] dy = {0, 1, 0, -1};
 
-    private List<String> messages;
+    // private List<String> messages;
 
     private CreatureFactory factory;
 
@@ -19,9 +18,8 @@ public class BossAI extends CreatureAI {
 
     private int[] manPrev;
     
-    public BossAI(Creature creature, List<String> messages, CreatureFactory factory) {
+    public BossAI(Creature creature, CreatureFactory factory) {
         super(creature);
-        this.messages = messages;
         this.factory = factory;
         interval = 0;
         manPrev = null;
@@ -135,8 +133,8 @@ public class BossAI extends CreatureAI {
         }
     }
 
-    @Override
-    public void onNotify(String message) {
+    // @Override
+    // public void onNotify(String message) {
 
-    }
+    // }
 }

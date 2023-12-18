@@ -25,21 +25,21 @@ public class SnakeGameScreen implements Screen, Serializable {
     private static final int SCREEN_WIDTH = 40;
     private static final int SCREEN_HEIGHT = 40;
 
-    private static final int LEFT_KEY = 37;
-    private static final int RIGHT_KEY = 39;
-    private static final int UP_KEY = 38;
-    private static final int DOWN_KEY = 40;
+    // private static final int LEFT_KEY = 37;
+    // private static final int RIGHT_KEY = 39;
+    // private static final int UP_KEY = 38;
+    // private static final int DOWN_KEY = 40;
 
-    private static final int DELAY_TIME = 200;
+    // private static final int DELAY_TIME = 200;
 
-    private int direction = 1;
+    // private int direction = 1;
 
     private HashMap<Integer, Creature> snakes;
     private Creature boss;
     private CreatureFactory factory;
 
-    private List<String> messages;
-    private List<String> oldMessages;
+    // private List<String> messages;
+    // private List<String> oldMessages;
 
     private World world;
 
@@ -47,8 +47,8 @@ public class SnakeGameScreen implements Screen, Serializable {
         super();
 
         createWorld();
-        this.messages = new ArrayList<String>();
-        this.oldMessages = new ArrayList<String>();
+        // this.messages = new ArrayList<String>();
+        // this.oldMessages = new ArrayList<String>();
 
         CreatureFactory creatureFactory = new CreatureFactory(this.world);
         this.factory = creatureFactory;
@@ -64,11 +64,11 @@ public class SnakeGameScreen implements Screen, Serializable {
             creatureFactory.newBean();
         }
 
-        this.boss = creatureFactory.newBoss(this.messages, creatureFactory);
+        this.boss = creatureFactory.newBoss(creatureFactory);
     }
 
     public void registerSnake(int id) {
-        this.snakes.put(id, this.factory.newSnake(this.messages));
+        this.snakes.put(id, this.factory.newSnake());
     }
 
     private void createWorld() {
@@ -90,7 +90,7 @@ public class SnakeGameScreen implements Screen, Serializable {
         String stats = String.format("%3d/%3d hp", snakes.get(id).hp(), snakes.get(id).maxHP()); // use id
         terminal.write(stats, 1, 0);
         // Messages
-        displayMessages(terminal, this.messages);
+        // displayMessages(terminal, null);
     }
 
     private void displayTiles(AsciiPanel terminal, int left, int top) {
@@ -142,14 +142,14 @@ public class SnakeGameScreen implements Screen, Serializable {
         world.update();
     }
 
-    private void displayMessages(AsciiPanel terminal, List<String> messages) {
-        int top = SCREEN_HEIGHT - messages.size();
-        for (int i = 0; i < messages.size(); i++) {
-            terminal.write(messages.get(i), 1, top + i + 1);
-        }
-        this.oldMessages.addAll(messages);
-        messages.clear();
-    }
+    // private void displayMessages(AsciiPanel terminal, List<String> messages) {
+    //     int top = SCREEN_HEIGHT - messages.size();
+    //     for (int i = 0; i < messages.size(); i++) {
+    //         terminal.write(messages.get(i), 1, top + i + 1);
+    //     }
+    //     this.oldMessages.addAll(messages);
+    //     messages.clear();
+    // }
 
     public int getScrollX() {
         return 0; //Math.max(0, Math.min(snake.x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));
@@ -278,6 +278,13 @@ public class SnakeGameScreen implements Screen, Serializable {
                 this.factory.setSnakeTask((SnakeAI) snake.getAI());
             }            
             this.factory.setBossTask((BossAI) this.boss.getAI());
+        }
+    }
+
+    public void removeSnake(int id) {
+        Creature snake = snakes.get(id);
+        if (snake != null) {
+            snake.modifyHP(-snake.maxHP() - 100);
         }
     }
 

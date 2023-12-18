@@ -2,19 +2,13 @@ package game;
 
 import javax.swing.JFrame;
 
-import java.util.List;
-import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -65,6 +59,30 @@ public class ServerMain extends JFrame {
         snakeGameScreen.update();
         super.repaint();
         if (reactor != null) {
+            // remove snakes that exits the game
+            ArrayList<Integer> toRemove = new ArrayList<>();
+            for (int id: states.keySet()) {
+                boolean st = false;
+                for (SelectionKey key: reactor.getClientKeys()) {
+                    if (key.isValid() == false) {
+                        continue;
+                    }
+                    Object attr = key.attachment();
+                    if (attr == null) {
+                        System.out.println("should not happen");
+                        continue;
+                    } else if (id == (int)attr) {
+                        st = true;
+                        break;
+                    }
+                }
+                if (st == false) {
+                    toRemove.add(id);
+                }
+            }
+            for (int id: toRemove) {
+                snakeGameScreen.removeSnake(id);
+            }
             for (SelectionKey key: reactor.getClientKeys()) {
                 try {
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();

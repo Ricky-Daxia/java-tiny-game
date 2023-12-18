@@ -96,13 +96,13 @@ public class Reactor {
             handler.handleEvent(handle);
         }
 
-        if (handle.isReadable()) {
+        else if (handle.isReadable()) {
             EventHandler handler =
                     registeredHandlers.get(SelectionKey.OP_READ);
             handler.handleEvent(handle);
         }
 
-        if (handle.isWritable()) {
+        else if (handle.isWritable()) {
             EventHandler handler =
                     registeredHandlers.get(SelectionKey.OP_WRITE);
             handler.handleEvent(handle);

@@ -29,7 +29,9 @@ public class ReactorManager {
         reactor.registerEventHandler(
                 SelectionKey.OP_WRITE, new WriteEventHandler());
 
+        if (serverMain != null) {
         reactor.run(); // Run the dispatcher loop
+        }
 
     }
 
