@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationMain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game</a> &gt; <span class="el_source">ApplicationMain.java</span></div><h1>ApplicationMain.java</h1><pre class="source lang-java linenums">package game;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JFrame;
+
+import game.asciiPanel.AsciiFont;
+import game.asciiPanel.AsciiPanel;
+import game.screen.Screen;
+import game.screen.SnakeGameScreen;
+import game.screen.StartScreen;
+
+public class ApplicationMain extends JFrame implements KeyListener {
+
+    private AsciiPanel terminal;
+    public Screen screen;
+    
+    public File record;
+    public long recordCnt;
+
+    // public AtomicBoolean recordMode;
+    // private AtomicBoolean playingRecord;
+    // public AtomicBoolean playFinished;
+    public volatile boolean recordMode;
+    private volatile boolean playingRecord;
+    public volatile boolean playFinished;
+
+    private void playRecord() {
+        // check whether dir exists
+        // is dir means there are records
+        // replay and delete folder
+<span class="nc" id="L46">        recordCnt = 0;</span>
+<span class="nc" id="L47">        for (long i = 0; ; i++) {</span>
+            //System.out.println(&quot;i= &quot; + i);
+<span class="nc" id="L49">            String scene = record + &quot;\\&quot; + String.valueOf(i) + &quot;.txt&quot;;</span>
+<span class="nc" id="L50">            try (InputStream in = new FileInputStream(scene);</span>
+<span class="nc" id="L51">                BufferedInputStream bis = new BufferedInputStream(in)) {</span>
+<span class="nc" id="L52">                ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="nc" id="L53">                byte[] buffer = new byte[30000];</span>
+<span class="nc" id="L54">                int len = bis.read(buffer);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                if (len != -1) {</span>
+<span class="nc" id="L56">                    bos.write(buffer, 0, len);</span>
+<span class="nc" id="L57">                    byte[] data = bos.toByteArray();</span>
+<span class="nc" id="L58">                    try (ByteArrayInputStream bais = new ByteArrayInputStream(data);</span>
+<span class="nc" id="L59">                        ObjectInputStream ois = new ObjectInputStream(bais)) {</span>
+<span class="nc" id="L60">                        screen = (Screen) ois.readObject();</span>
+<span class="nc" id="L61">                        repaint();</span>
+<span class="nc" id="L62">                        recordCnt++;</span>
+<span class="nc" id="L63">                    } catch (IOException | ClassNotFoundException e) {</span>
+<span class="nc" id="L64">                        System.out.println(&quot;decode screen failed&quot;);</span>
+<span class="nc" id="L65">                    } </span>
+<span class="nc" id="L66">                    Thread.sleep(100);</span>
+                }
+<span class="nc" id="L68">            } catch (IOException e) {</span>
+<span class="nc" id="L69">                System.out.println(&quot;IOException when reading record &quot; + i);</span>
+<span class="nc" id="L70">                break;</span>
+<span class="nc" id="L71">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L72">                System.out.println(&quot;InterruptedException when replaying&quot;);</span>
+<span class="nc" id="L73">                continue;</span>
+<span class="nc" id="L74">            }</span>
+        }
+            // delete folder and all files
+            // File[] files = app.record.listFiles();
+            // if (files != null) {
+            //     for (File f: files) {
+            //         f.delete();
+            //     }
+            // }
+            // app.record.delete();       
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (screen instanceof SnakeGameScreen) {</span>
+<span class="nc" id="L85">            ((SnakeGameScreen) screen).synchronize();</span>
+        }
+<span class="nc" id="L87">        System.out.println(&quot;----------ready to go----------&quot;);</span>
+<span class="nc" id="L88">    }</span>
+
+    public ApplicationMain() {
+<span class="fc" id="L91">        super();</span>
+<span class="fc" id="L92">        terminal = new AsciiPanel(40, 40, AsciiFont.gold);</span>
+<span class="fc" id="L93">        add(terminal);</span>
+<span class="fc" id="L94">        pack();</span>
+<span class="fc" id="L95">        screen = new StartScreen();</span>
+<span class="fc" id="L96">        recordMode = false;</span>
+<span class="fc" id="L97">        playFinished = false;</span>
+<span class="fc" id="L98">        playingRecord = false;</span>
+<span class="fc" id="L99">        addKeyListener(this);</span>
+<span class="fc" id="L100">        repaint();</span>
+<span class="fc" id="L101">    }</span>
+
+    @Override
+    public void repaint() {
+        //System.out.println(&quot;rep&quot;);
+<span class="fc" id="L106">        terminal.clear();</span>
+<span class="fc" id="L107">        screen.displayOutput(terminal, 0);</span>
+<span class="fc" id="L108">        super.repaint();</span>
+<span class="fc" id="L109">    }</span>
+
+    private void initRecord() {
+<span class="nc" id="L112">        String dirname = &quot;record&quot;;</span>
+<span class="nc" id="L113">        record = new File(dirname);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (!record.isDirectory()) {</span>
+<span class="nc" id="L115">            record.mkdir();</span>
+<span class="nc" id="L116">            recordCnt = 0;      </span>
+        }        
+<span class="nc" id="L118">    }</span>
+
+    public void keyPressed(KeyEvent e) {
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (playingRecord == true) {</span>
+<span class="nc" id="L122">            return;</span>
+        }
+<span class="nc bnc" id="L124" title="All 4 branches missed.">        if (e.getKeyCode() == KeyEvent.VK_P &amp;&amp; screen instanceof StartScreen) {</span>
+<span class="nc" id="L125">            initRecord();</span>
+<span class="nc" id="L126">            screen = new SnakeGameScreen();</span>
+<span class="nc" id="L127">            ((SnakeGameScreen) screen).registerSnake(0);</span>
+<span class="nc" id="L128">            recordMode = true;</span>
+<span class="nc" id="L129">            playFinished = true;</span>
+<span class="nc bnc" id="L130" title="All 4 branches missed.">        } else if (e.getKeyCode() == KeyEvent.VK_R &amp;&amp; screen instanceof StartScreen) {</span>
+<span class="nc" id="L131">            initRecord();</span>
+<span class="nc" id="L132">            playingRecord = true;</span>
+<span class="nc" id="L133">            new Thread(new Runnable() {</span>
+                public void run() {
+<span class="nc" id="L135">                    playRecord();</span>
+<span class="nc" id="L136">                    playingRecord = false;</span>
+<span class="nc" id="L137">                    recordMode = true;</span>
+<span class="nc" id="L138">                    playFinished = true;</span>
+<span class="nc" id="L139">                }</span>
+<span class="nc" id="L140">            }).start();</span>
+<span class="nc" id="L141">            return;</span>
+        } else {
+<span class="nc" id="L143">            boolean isNew = false;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if (!(screen instanceof SnakeGameScreen)) {</span>
+<span class="nc" id="L145">                isNew = true;</span>
+            }
+<span class="nc" id="L147">            screen = screen.respondToUserInput(e, 0);</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">            if (isNew &amp;&amp; screen instanceof SnakeGameScreen) {</span>
+<span class="nc" id="L149">                ((SnakeGameScreen) screen).registerSnake(0);</span>
+<span class="nc" id="L150">                playFinished = true;</span>
+            }    
+        }
+<span class="nc" id="L153">        repaint();</span>
+<span class="nc" id="L154">    }</span>
+
+    public void keyReleased(KeyEvent e) {
+
+<span class="fc" id="L158">    }</span>
+
+    public void keyTyped(KeyEvent e) {
+
+<span class="fc" id="L162">    }</span>
+
+    public static void main(String[] args) {
+<span class="fc" id="L165">        ApplicationMain app = new ApplicationMain();</span>
+<span class="fc" id="L166">        app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="fc" id="L167">        app.setVisible(true);</span>
+
+<span class="fc" id="L169">        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(10);</span>
+<span class="fc" id="L170">        executor.scheduleAtFixedRate(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">                if (app.playFinished == false) {</span>
+<span class="fc" id="L174">                    return;</span>
+                }
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                if (app.screen instanceof SnakeGameScreen) {</span>
+<span class="nc" id="L177">                    ((SnakeGameScreen) app.screen).update();</span>
+                }
+<span class="nc" id="L179">                app.repaint();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                if (app.recordMode == true) {</span>
+<span class="nc" id="L181">                    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="nc" id="L182">                        ObjectOutputStream oos = new ObjectOutputStream(baos)) {</span>
+<span class="nc" id="L183">                        oos.writeObject(app.screen);</span>
+<span class="nc" id="L184">                        oos.close();</span>
+<span class="nc" id="L185">                        byte[] data = baos.toByteArray();</span>
+<span class="nc" id="L186">                        String scene = app.record + &quot;\\&quot; + String.valueOf(app.recordCnt) + &quot;.txt&quot;;</span>
+<span class="nc" id="L187">                        try (FileOutputStream out = new FileOutputStream(scene);</span>
+<span class="nc" id="L188">                            BufferedOutputStream bos = new BufferedOutputStream(out)) {</span>
+<span class="nc" id="L189">                            bos.write(data);</span>
+<span class="nc" id="L190">                            app.recordCnt++;</span>
+<span class="nc" id="L191">                        } catch (IOException e) {</span>
+<span class="nc" id="L192">                            System.out.println(&quot;IOException when encoding record&quot;);</span>
+<span class="nc" id="L193">                        }</span>
+<span class="nc" id="L194">                    } catch (IOException e) {</span>
+<span class="nc" id="L195">                        System.out.println(&quot;IOException when writing record&quot;);</span>
+<span class="nc" id="L196">                    } </span>
+                }
+<span class="nc" id="L198">            }</span>
+        }, 100, 100, TimeUnit.MILLISECONDS);
+<span class="fc" id="L200">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

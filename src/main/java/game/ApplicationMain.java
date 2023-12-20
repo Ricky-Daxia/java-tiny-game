@@ -35,9 +35,9 @@ public class ApplicationMain extends JFrame implements KeyListener {
     // public AtomicBoolean recordMode;
     // private AtomicBoolean playingRecord;
     // public AtomicBoolean playFinished;
-    public boolean recordMode;
-    private boolean playingRecord;
-    public boolean playFinished;
+    public volatile boolean recordMode;
+    private volatile boolean playingRecord;
+    public volatile boolean playFinished;
 
     private void playRecord() {
         // check whether dir exists

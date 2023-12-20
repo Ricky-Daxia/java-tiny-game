@@ -18,19 +18,17 @@ public class SnakeGameScreenTest {
         snakeGameScreen.synchronize();
         
         // simulate snake's move
-        try {
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_LEFT, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_UP, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_RIGHT, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_DOWN, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_A, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_W, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_S, 1);
-            snakeGameScreen.respondToUserInput(KeyEvent.VK_D, 1);
-            KeyEvent keyEvent = Mockito.mock(KeyEvent.class);
-            snakeGameScreen.respondToUserInput(keyEvent, 1);
-        } catch (NullPointerException e) {
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_LEFT, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_UP, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_RIGHT, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_DOWN, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_A, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_W, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_S, 1);
+        snakeGameScreen.respondToUserInput(KeyEvent.VK_D, 1);
+        KeyEvent keyEvent = Mockito.mock(KeyEvent.class);
+        snakeGameScreen.respondToUserInput(keyEvent, 1);
 
-        }
+        snakeGameScreen.removeSnake(1);
     }
 }

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WorldBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">WorldBuilder.java</span></div><h1>WorldBuilder.java</h1><pre class="source lang-java linenums">package game.world;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+
+public class WorldBuilder implements Serializable {
+
+    private int width;
+    private int height;
+    private Tile[][] tiles;
+
+<span class="fc" id="L16">    public WorldBuilder(int width, int height) {</span>
+<span class="fc" id="L17">        this.width = width;</span>
+<span class="fc" id="L18">        this.height = height;</span>
+<span class="fc" id="L19">        this.tiles = new Tile[width][height];</span>
+<span class="fc" id="L20">    }</span>
+
+    public World build() {
+<span class="fc" id="L23">        return new World(tiles);</span>
+    }
+
+    public WorldBuilder makeRectangle() {
+<span class="fc" id="L27">        String filePath = &quot;map1.txt&quot;;</span>
+<span class="fc" id="L28">        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);</span>
+<span class="fc" id="L29">        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {</span>
+            String line;
+<span class="fc bfc" id="L31" title="All 2 branches covered.">            for (int i = 0; i &lt; width; i++) {</span>
+<span class="fc" id="L32">                line = reader.readLine();</span>
+                //System.out.println(line);
+<span class="fc" id="L34">                int j = -1;</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">                for (int k = 0; k &lt; line.length(); k += 2) {</span>
+<span class="fc" id="L36">                    j++;</span>
+<span class="fc" id="L37">                    char ch = line.charAt(k);</span>
+                    //System.out.println(i + &quot; &quot; + j);
+<span class="pc bpc" id="L39" title="3 of 11 branches missed.">                    switch (ch) {</span>
+                        case '0': 
+<span class="fc" id="L41">                            tiles[i][j] = Tile.FLOOR;</span>
+<span class="fc" id="L42">                            break;</span>
+                        case '1':
+<span class="nc" id="L44">                            tiles[i][j] = Tile.WALL;</span>
+<span class="nc" id="L45">                            break;</span>
+                        case '2':
+<span class="fc" id="L47">                            tiles[i][j] = Tile.WATER;</span>
+<span class="fc" id="L48">                            break;</span>
+                        case '3':
+<span class="fc" id="L50">                            tiles[i][j] = Tile.LeftUp;</span>
+<span class="fc" id="L51">                            break;</span>
+                        case '4':
+<span class="fc" id="L53">                            tiles[i][j] = Tile.RightUp;</span>
+<span class="fc" id="L54">                            break;</span>
+                        case '5':
+<span class="fc" id="L56">                            tiles[i][j] = Tile.LeftDown;</span>
+<span class="fc" id="L57">                            break;</span>
+                        case '6':
+<span class="fc" id="L59">                            tiles[i][j] = Tile.RightDown;</span>
+<span class="fc" id="L60">                            break;</span>
+                        case '7':
+<span class="fc" id="L62">                            tiles[i][j] = Tile.Horizontal;</span>
+<span class="fc" id="L63">                            break;</span>
+                        case '8':
+<span class="fc" id="L65">                            tiles[i][j] = Tile.Vertical;</span>
+<span class="fc" id="L66">                            break;</span>
+                        case '9':
+<span class="nc" id="L68">                            tiles[i][j] = Tile.Polluted;</span>
+<span class="nc" id="L69">                            break;</span>
+                        default:
+<span class="nc" id="L71">                            System.out.println(ch + &quot; &quot; + i + &quot; &quot; + j);</span>
+                            break;
+                    }
+
+                }
+            }
+<span class="nc" id="L77">        } catch (IOException e) {</span>
+<span class="nc" id="L78">            e.printStackTrace();</span>
+<span class="fc" id="L79">        } </span>
+<span class="fc" id="L80">        return this;</span>
+    }
+
+    // private WorldBuilder randomizeTiles() {
+    //     Random rand = new Random();
+    //     for (int width = 0; width &lt; this.width; width++) {
+    //         for (int height = 0; height &lt; this.height; height++) {
+    //             switch (rand.nextInt(Tile.values().length - 1)) {
+    //                 case 0:
+    //                     tiles[width][height] = Tile.FLOOR;
+    //                     break;
+    //                 case 1:
+    //                     tiles[width][height] = Tile.WALL;
+    //                     break;
+    //             }
+    //         }
+    //     }
+    //     return this;
+    // }
+
+    // private WorldBuilder smooth(int factor) {
+    //     Tile[][] newtemp = new Tile[width][height];
+    //     if (factor &gt; 1) {
+    //         smooth(factor - 1);
+    //     }
+    //     for (int width = 0; width &lt; this.width; width++) {
+    //         for (int height = 0; height &lt; this.height; height++) {
+    //             // Surrounding walls and floor
+    //             int surrwalls = 0;
+    //             int surrfloor = 0;
+
+    //             // Check the tiles in a 3x3 area around center tile
+    //             for (int dwidth = -1; dwidth &lt; 2; dwidth++) {
+    //                 for (int dheight = -1; dheight &lt; 2; dheight++) {
+    //                     if (width + dwidth &lt; 0 || width + dwidth &gt;= this.width || height + dheight &lt; 0
+    //                             || height + dheight &gt;= this.height) {
+    //                         continue;
+    //                     } else if (tiles[width + dwidth][height + dheight] == Tile.FLOOR) {
+    //                         surrfloor++;
+    //                     } else if (tiles[width + dwidth][height + dheight] == Tile.WALL) {
+    //                         surrwalls++;
+    //                     }
+    //                 }
+    //             }
+    //             Tile replacement;
+    //             if (surrwalls &gt; surrfloor) {
+    //                 replacement = Tile.WALL;
+    //             } else {
+    //                 replacement = Tile.FLOOR;
+    //             }
+    //             newtemp[width][height] = replacement;
+    //         }
+    //     }
+    //     tiles = newtemp;
+    //     return this;
+    // }
+
+    // public WorldBuilder makeCaves() {
+    //     return randomizeTiles().smooth(19);
+    // }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

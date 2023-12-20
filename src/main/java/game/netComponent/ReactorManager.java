@@ -9,13 +9,19 @@ import game.ServerMain;
 public class ReactorManager {
     private static final int SERVER_PORT = 9093;
 
+    private Reactor reactor;
+
+    public Reactor getReactor() {
+        return reactor;
+    }
+
     public void startReactor(ServerMain serverMain) throws Exception {
 
         ServerSocketChannel server = ServerSocketChannel.open();
         server.socket().bind(new InetSocketAddress(SERVER_PORT));
         server.configureBlocking(false);
 
-        Reactor reactor = new Reactor(serverMain);
+        reactor = new Reactor(serverMain);
         reactor.registerChannel(SelectionKey.OP_ACCEPT, server);
 
         reactor.registerEventHandler(
@@ -30,7 +36,7 @@ public class ReactorManager {
                 SelectionKey.OP_WRITE, new WriteEventHandler());
 
         if (serverMain != null) {
-        reactor.run(); // Run the dispatcher loop
+                reactor.run(); // Run the dispatcher loop
         }
 
     }

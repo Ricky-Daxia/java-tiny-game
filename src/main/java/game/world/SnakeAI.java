@@ -1,6 +1,5 @@
 package game.world;
 
-import java.util.List;
 
 public class SnakeAI extends CreatureAI {
 

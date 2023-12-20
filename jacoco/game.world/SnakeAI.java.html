@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SnakeAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">SnakeAI.java</span></div><h1>SnakeAI.java</h1><pre class="source lang-java linenums">package game.world;
+
+
+public class SnakeAI extends CreatureAI {
+
+
+    // private List&lt;String&gt; messages;
+
+    public SnakeAI(Creature creature) {
+<span class="fc" id="L10">        super(creature);</span>
+        // this.messages = messages;
+        
+        //the creature is virtually the first piece of the snake
+<span class="fc" id="L14">    }</span>
+
+
+    @Override
+    public void onEnter(int x, int y, Tile tile) {
+        // int xPrev = pieces.get(0).x();
+        // int yPrev = pieces.get(0).y();
+
+        // if (tile.isGround()) {
+        //     pieces.get(0).setX(x);
+        //     pieces.get(0).setY(y);
+
+        //     creature.setX(x);
+        //     creature.setY(y);
+        // } else if (tile.isDiggable()) {
+        //     creature.dig(x, y);
+        // } else {
+        //     return;
+        // }
+
+        // if (pieces.size() &gt; 1) {
+        //     for (int i = 1; i &lt; pieces.size(); i++) {
+        //         int tempX = pieces.get(i).x();
+        //         int tempY = pieces.get(i).y();
+        //         pieces.get(i).setX(xPrev);
+        //         pieces.get(i).setY(yPrev);
+        //         xPrev = tempX;
+        //         yPrev = tempY;
+        //     }
+        // }
+        // System.out.println(&quot;enter : &quot; + world.tile(x, y));
+        //creature.tryMove(x, y);
+        // if (tile.isGround() &amp;&amp; tile.compareAndSet(false, true)) {
+        //     int oldX = creature.x(), oldY = creature.y();
+        //     creature.setX(x);
+        //     creature.setY(y);
+            
+        //     //System.out.println(&quot;man set in &quot; + x + &quot;  &quot; + y);
+        // } else {
+        //     return;
+        // }
+<span class="fc" id="L55">    }</span>
+
+    @Override
+    public void attack(Creature another) {
+<span class="nc" id="L59">        another.modifyHP(-creature.attackValue());</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (another.attackValue() &gt; 0) {</span>
+            // gonna be hurt
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (!creature.getAttacked()) {</span>
+<span class="nc" id="L63">                creature.changeAttacked();</span>
+            }
+        }
+<span class="nc" id="L66">        creature.modifyHP(-another.attackValue());</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (another.hp() &lt; 1) {</span>
+<span class="nc" id="L68">            creature.getWorld().remove(another);</span>
+            //creature.tryMove(another.x(), another.y());
+        }
+<span class="nc" id="L71">    }</span>
+
+    @Override
+    public void onUpdate() {
+<span class="fc" id="L75">        World world = creature.getWorld();</span>
+        //world.setManPos(creature.x(), creature.y());
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (creature.getAttacked()) {</span>
+<span class="nc" id="L78">            creature.changeAttacked();</span>
+        } 
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (world.tile(creature.x(), creature.y()).isPolluted()) {</span>
+<span class="nc" id="L81">            creature.modifyHP(-1);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            if (!creature.getAttacked()) {</span>
+<span class="nc" id="L83">                creature.changeAttacked();</span>
+            }
+        }
+        //System.out.println(creature.x() + &quot; &quot; + creature.y());
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (creature.hp() &lt; 0) {</span>
+<span class="fc" id="L88">            world.remove(creature);</span>
+<span class="fc" id="L89">            System.out.println(&quot;snake died&quot;);</span>
+<span class="fc" id="L90">            task.cancel(true);</span>
+        }
+<span class="fc" id="L92">    }</span>
+
+    // @Override
+    // public void onNotify(String message) {
+    //     this.messages.add(message);
+    // }
+
+    // @Override
+    // public void printGlyph(AsciiPanel terminal, int offsetX, int offsetY) {
+    //     for (SnakePiece p : this.getPieces()) {
+    //         terminal.write(creature.glyph(), p.x() - offsetX, p.y() - offsetY, creature.color());
+    //     }
+    // }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -159,15 +159,23 @@ public class World implements Serializable {
     }
 
 
-    public void setPolluted(int x, int y) {
+    public void setPolluted(int[] x, int[] y) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (tiles[i][j] != Tile.FLOOR && tiles[i][j] != Tile.Polluted) {
                     continue;
-                } else if (Math.abs(i - x) > 1 || Math.abs(j - y) > 1) {
-                    tiles[i][j] = Tile.FLOOR;
                 } else {
-                    tiles[i][j] = Tile.Polluted;
+                    boolean polluted = false;
+                    for (int k = 0; k < x.length; k++) {
+                        if (Math.abs(i - x[k]) <= 1 && Math.abs(j - y[k]) <= 1) {
+                            polluted = true;
+                        }
+                    }
+                    if (polluted) {
+                        tiles[i][j] = Tile.Polluted;
+                    } else {
+                        tiles[i][j] = Tile.FLOOR;
+                    }
                 }
             }
         }

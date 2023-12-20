@@ -2,7 +2,10 @@ package game;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.awt.event.KeyEvent;
+
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class ClientTest {
     @Test(expected = NullPointerException.class)
@@ -17,18 +20,18 @@ public class ClientTest {
         Client.main(null);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test1() {
-        new Client().keyPressed(null);
+        new Client().keyPressed(Mockito.mock(KeyEvent.class));
     }
 
     @Test
     public void test2() {
-        new Client().keyReleased(null);
+        new Client().keyReleased(Mockito.mock(KeyEvent.class));
     }
 
     @Test
     public void test3() {
-        new Client().keyTyped(null);
+        new Client().keyTyped(Mockito.mock(KeyEvent.class));
     }
 }

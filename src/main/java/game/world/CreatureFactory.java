@@ -1,8 +1,6 @@
 package game.world;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +63,7 @@ public class CreatureFactory implements Serializable {
         Creature boss = new Creature(this.world, (char) 2, AsciiPanel.brightBlack, 10, 10, 5, 0);
         boss.modifyHP(boss.maxHP());
         world.addAtEmptyLocation(boss);
-        world.setPolluted(boss.x(), boss.y());
+        // world.setPolluted(boss.x(), boss.y());
         BossAI bossAIInstance = new BossAI(boss, factory);
         bossAIInstance.setScheduledFuture(exector.scheduleAtFixedRate(new Runnable() {
             @Override

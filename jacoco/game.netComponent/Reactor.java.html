@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reactor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.netComponent</a> &gt; <span class="el_source">Reactor.java</span></div><h1>Reactor.java</h1><pre class="source lang-java linenums">package game.netComponent;
+
+import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import game.ServerMain;
+
+/* This is the Initiation Dispatcher or the Reactor */
+public class Reactor {
+<span class="fc" id="L20">    private Map&lt;Integer, EventHandler&gt; registeredHandlers = new ConcurrentHashMap&lt;Integer, EventHandler&gt;();</span>
+    private Selector demultiplexer;
+
+    private ServerMain server;
+
+	private List&lt;SelectionKey&gt; clientKeys;
+
+	private int IDs;
+	public int getAndInc() {
+<span class="fc" id="L29">		int x = IDs;</span>
+<span class="fc" id="L30">		IDs++;</span>
+<span class="fc" id="L31">		return x;</span>
+	}
+
+    public void addClientKey(SelectionKey selectionKey) {
+<span class="nc" id="L35">        clientKeys.add(selectionKey);</span>
+<span class="nc" id="L36">        server.add((int) selectionKey.attachment());</span>
+<span class="nc" id="L37">    }</span>
+
+    public List&lt;SelectionKey&gt; getClientKeys() {
+<span class="fc" id="L40">        return clientKeys;</span>
+    }
+
+<span class="fc" id="L43">    public Reactor(ServerMain server) throws Exception {</span>
+<span class="fc" id="L44">        demultiplexer = Selector.open();</span>
+<span class="fc" id="L45">        clientKeys = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L46">        this.server = server;</span>
+<span class="fc" id="L47">        IDs = 1;</span>
+<span class="fc" id="L48">    }</span>
+
+    public Selector getDemultiplexer() {
+<span class="fc" id="L51">        return demultiplexer;</span>
+    }
+
+    public void registerEventHandler(
+            int eventType, EventHandler eventHandler) {
+<span class="fc" id="L56">        registeredHandlers.put(eventType, eventHandler);</span>
+<span class="fc" id="L57">    }</span>
+
+    public void registerChannel(
+            int eventType, SelectableChannel channel) throws Exception {
+<span class="fc" id="L61">        channel.register(demultiplexer, eventType);</span>
+<span class="fc" id="L62">    }</span>
+
+    public void run() {
+        // new Thread(new Runnable() {
+        //     public void run() {
+                try {
+                    // Loop indefinitely
+                    while (true) {
+<span class="nc" id="L70">                        demultiplexer.select();</span>
+
+<span class="nc" id="L72">                        Set&lt;SelectionKey&gt; readyHandles =</span>
+<span class="nc" id="L73">                                demultiplexer.selectedKeys();</span>
+<span class="nc" id="L74">                        Iterator&lt;SelectionKey&gt; handleIterator =</span>
+<span class="nc" id="L75">                                readyHandles.iterator();</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                        while (handleIterator.hasNext()) {</span>
+<span class="nc" id="L78">                            SelectionKey handle = handleIterator.next();</span>
+
+<span class="nc" id="L80">                            handleEvent(handle);</span>
+                                                 
+<span class="nc" id="L82">                            handleIterator.remove();</span>
+<span class="nc" id="L83">                        }</span>
+<span class="nc" id="L84">                    }</span>
+<span class="nc" id="L85">                } catch (Exception e) {</span>
+<span class="nc" id="L86">                    e.printStackTrace();</span>
+                }
+        //     }
+        // }).start();
+<span class="nc" id="L90">    }</span>
+
+    public void handleEvent(SelectionKey handle) throws Exception {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (handle.isAcceptable()) {</span>
+<span class="fc" id="L94">            EventHandler handler =</span>
+<span class="fc" id="L95">                    registeredHandlers.get(SelectionKey.OP_ACCEPT);</span>
+<span class="nc" id="L96">            handler.handleEvent(handle);</span>
+<span class="nc" id="L97">        }</span>
+
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        else if (handle.isReadable()) {</span>
+<span class="fc" id="L100">            EventHandler handler =</span>
+<span class="fc" id="L101">                    registeredHandlers.get(SelectionKey.OP_READ);</span>
+<span class="nc" id="L102">            handler.handleEvent(handle);</span>
+<span class="nc" id="L103">        }</span>
+
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        else if (handle.isWritable()) {</span>
+<span class="fc" id="L106">            EventHandler handler =</span>
+<span class="fc" id="L107">                    registeredHandlers.get(SelectionKey.OP_WRITE);</span>
+<span class="nc" id="L108">            handler.handleEvent(handle);</span>
+        }  
+<span class="nc" id="L110">    }</span>
+
+	public void reply(byte[] message, SelectionKey targetKey) {
+		//System.out.println(&quot;in reply&quot;);
+		try {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">			for (SelectionKey selectionKey: demultiplexer.keys()) {</span>
+<span class="nc" id="L116">				Channel channel = selectionKey.channel();</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">				if (channel instanceof SocketChannel &amp;&amp; channel == targetKey.channel()) {</span>
+<span class="nc" id="L118">					SocketChannel socketChannel = (SocketChannel) channel;</span>
+<span class="nc" id="L119">					ByteBuffer byteBuffer = ByteBuffer.wrap(message);</span>
+<span class="nc" id="L120">					socketChannel.write(byteBuffer);</span>
+				}
+<span class="nc" id="L122">			}			</span>
+<span class="nc" id="L123">		} catch (Exception e) {</span>
+			// check whether the client is shutdown
+<span class="nc" id="L125">			e.printStackTrace();</span>
+<span class="fc" id="L126">		}</span>
+<span class="fc" id="L127">	}</span>
+
+    public void parseData(byte[] data, SelectionKey selectionKey) {
+        try {
+<span class="nc" id="L131">            ByteBuffer byteBuffer = ByteBuffer.wrap(data);</span>
+<span class="nc" id="L132">            int[] keyCodes = new int[data.length / Integer.BYTES];</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            for (int i = 0; i &lt; keyCodes.length; i++) {</span>
+<span class="nc" id="L134">                keyCodes[i] = byteBuffer.getInt();</span>
+                //System.out.println(&quot;keyCode &quot; + keyCodes[i]);
+            }
+<span class="nc" id="L137">            server.respondToUserInput(keyCodes, selectionKey);            </span>
+<span class="fc" id="L138">        } catch (NullPointerException e) {</span>
+<span class="fc" id="L139">            System.out.println(&quot;parse data with null pointer!!!&quot;);</span>
+<span class="nc" id="L140">        }</span>
+
+<span class="fc" id="L142">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

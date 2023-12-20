@@ -4,9 +4,7 @@ import javax.swing.JFrame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -14,10 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import game.asciiPanel.AsciiFont;
 import game.asciiPanel.AsciiPanel;
-import game.netComponent.AcceptEventHandler;
-import game.netComponent.Reactor;
-import game.netComponent.ReadEventHandler;
-import game.netComponent.WriteEventHandler;
+import game.netComponent.ReactorManager;
 import game.screen.LoseScreen;
 import game.screen.Screen;
 import game.screen.SnakeGameScreen;
@@ -52,6 +47,69 @@ public class ServerMain extends JFrame {
         states = new HashMap<>();
     }
 
+    private void removeSnakes() {
+        // remove snakes that exits the game
+        ArrayList<Integer> toRemove = new ArrayList<>();
+        for (int id: states.keySet()) {
+            boolean st = false;
+            for (SelectionKey key: reactor.getReactor().getClientKeys()) {
+                if (key.isValid() == false) {
+                    continue;
+                }
+                Object attr = key.attachment();
+                if (attr == null) {
+                    System.out.println("should not happen");
+                    continue;
+                } else if (id == (int)attr) {
+                    st = true;
+                    break;
+                }
+            }
+            if (st == false) {
+                toRemove.add(id);
+            }
+        }
+        for (int id: toRemove) {
+            snakeGameScreen.removeSnake(id);
+        }        
+    }
+
+    public void reply() {
+        removeSnakes();
+        for (SelectionKey key: reactor.getReactor().getClientKeys()) {
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(bos);
+                if (key.attachment() == null) {
+                    System.out.println("empty attachment");
+                    continue;
+                }
+                //System.out.println((int)key.attachment());
+                switch (states.get((int)key.attachment())) {
+                    case 0:
+                        oos.writeObject(startScreen);
+                        break;
+                    case 1:
+                        oos.writeObject(winScreen);
+                        break;
+                    case 2:
+                        oos.writeObject(loseScreen);
+                        break;
+                    case 3: 
+                        oos.writeObject(snakeGameScreen);
+                        break;
+                    default:
+                        break;
+                }
+                //System.out.println((int)key.attachment() + " " + states.get((int)key.attachment()));
+                oos.close();
+                reactor.getReactor().reply(bos.toByteArray(), key);
+            } catch (Exception e) {
+                System.out.println("encode screen failed");
+            }
+        }            
+    } 
+
     @Override
     public void repaint() {
         terminal.clear();
@@ -59,62 +117,7 @@ public class ServerMain extends JFrame {
         snakeGameScreen.update();
         super.repaint();
         if (reactor != null) {
-            // remove snakes that exits the game
-            ArrayList<Integer> toRemove = new ArrayList<>();
-            for (int id: states.keySet()) {
-                boolean st = false;
-                for (SelectionKey key: reactor.getClientKeys()) {
-                    if (key.isValid() == false) {
-                        continue;
-                    }
-                    Object attr = key.attachment();
-                    if (attr == null) {
-                        System.out.println("should not happen");
-                        continue;
-                    } else if (id == (int)attr) {
-                        st = true;
-                        break;
-                    }
-                }
-                if (st == false) {
-                    toRemove.add(id);
-                }
-            }
-            for (int id: toRemove) {
-                snakeGameScreen.removeSnake(id);
-            }
-            for (SelectionKey key: reactor.getClientKeys()) {
-                try {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(bos);
-                    if (key.attachment() == null) {
-                        System.out.println("empty attachment");
-                        continue;
-                    }
-                    //System.out.println((int)key.attachment());
-                    switch (states.get((int)key.attachment())) {
-                        case 0:
-                            oos.writeObject(startScreen);
-                            break;
-                        case 1:
-                            oos.writeObject(winScreen);
-                            break;
-                        case 2:
-                            oos.writeObject(loseScreen);
-                            break;
-                        case 3: 
-                            oos.writeObject(snakeGameScreen);
-                            break;
-                        default:
-                            break;
-                    }
-                    //System.out.println((int)key.attachment() + " " + states.get((int)key.attachment()));
-                    oos.close();
-                    reactor.reply(bos.toByteArray(), key);
-                } catch (Exception e) {
-                    System.out.println("encode screen failed");
-                }
-            }            
+            reply();
         }
     }
 
@@ -123,7 +126,7 @@ public class ServerMain extends JFrame {
     //     repaint();
     // }
 
-    public void keyPressed(int e, int id) {
+    public void transit(int e, int id) {
         Screen screen = null;
         switch (states.get(id)) {
             case 0:
@@ -154,10 +157,14 @@ public class ServerMain extends JFrame {
         } else {
             states.put(id, 2);
         }
+    }
+
+    public void keyPressed(int e, int id) {
+        transit(e, id);
         repaint(); 
     }
 
-    public Reactor reactor;
+    public ReactorManager reactor;
 
     public void respondToUserInput(int[] keyEvents, SelectionKey key) {
         System.out.println("key pressed");
@@ -180,34 +187,15 @@ public class ServerMain extends JFrame {
             }
         }, 100, 100, TimeUnit.MILLISECONDS);
 
-        
         try {
             serverApp.startService();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        
+        }            
     }
 
     public void startService() throws Exception {
-        ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(new InetSocketAddress(9093));
-        server.configureBlocking(false);
-
-        reactor = new Reactor(this);
-        reactor.registerChannel(SelectionKey.OP_ACCEPT, server);
-
-        reactor.registerEventHandler(
-                SelectionKey.OP_ACCEPT, new AcceptEventHandler(
-                reactor.getDemultiplexer(), reactor));
-
-        reactor.registerEventHandler(
-                SelectionKey.OP_READ, new ReadEventHandler(
-                reactor.getDemultiplexer(), reactor));
-
-        reactor.registerEventHandler(
-                SelectionKey.OP_WRITE, new WriteEventHandler());
-
-        reactor.run(); // Run the dispatcher loop
+        reactor = new ReactorManager();
+        reactor.startReactor(this);
     }
 }

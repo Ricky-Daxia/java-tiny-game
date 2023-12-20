@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Creature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">Creature.java</span></div><h1>Creature.java</h1><pre class="source lang-java linenums">package game.world;
+
+import java.awt.Color;
+import java.io.Serializable;
+
+public class Creature implements Serializable {
+
+    public static final int MOVE_UP = 1;
+    public static final int MOVE_DOWN = 2;
+    public static final int MOVE_LEFT = 3;
+    public static final int MOVE_RIGHT = 4;
+
+    private World world;
+
+    public World getWorld() {
+<span class="fc" id="L16">        return world;</span>
+    }
+
+    private int x;
+
+    public void setX(int x) {
+<span class="fc" id="L22">        this.x = x;</span>
+<span class="fc" id="L23">    }</span>
+
+    public int x() {
+<span class="fc" id="L26">        return x;</span>
+    }
+
+    private int y;
+
+    public void setY(int y) {
+<span class="fc" id="L32">        this.y = y;</span>
+<span class="fc" id="L33">    }</span>
+
+    public int y() {
+<span class="fc" id="L36">        return y;</span>
+    }
+
+
+    private char glyph;
+    private char attackedGlyph;
+    private boolean attacked;
+
+    public void setAttackedGlyph(char attackedGlyph) {
+<span class="fc" id="L45">        this.attackedGlyph = attackedGlyph;</span>
+<span class="fc" id="L46">    }</span>
+
+    public void changeGlyph() {
+<span class="fc" id="L49">        char origin = this.glyph;</span>
+<span class="fc" id="L50">        this.glyph = this.attackedGlyph;</span>
+<span class="fc" id="L51">        this.attackedGlyph = origin;</span>
+<span class="fc" id="L52">    }</span>
+
+    public void changeAttacked() {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        attacked = !attacked;</span>
+<span class="fc" id="L56">        changeGlyph();</span>
+<span class="fc" id="L57">    }</span>
+
+    public boolean getAttacked() {
+<span class="fc" id="L60">        return attacked;</span>
+    }
+
+    public char glyph() {
+<span class="fc" id="L64">        return this.glyph;</span>
+    }
+
+    private Color color;
+
+    public Color color() {
+<span class="fc" id="L70">        return this.color;</span>
+    }
+
+    private CreatureAI ai;
+
+    public void setAI(CreatureAI ai) {
+<span class="fc" id="L76">        this.ai = ai;</span>
+<span class="fc" id="L77">    }</span>
+
+    public CreatureAI getAI(){
+<span class="fc" id="L80">        return this.ai;</span>
+    }
+
+    private int maxHP;
+
+    public int maxHP() {
+<span class="fc" id="L86">        return this.maxHP;</span>
+    }
+
+    private int hp;
+
+    public int hp() {
+<span class="fc" id="L92">        return this.hp;</span>
+    }
+
+    public synchronized void modifyHP(int amount) {
+<span class="fc" id="L96">        this.hp += amount;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (this.ai instanceof SnakeAI) {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (this.hp &lt; 0) {</span>
+<span class="fc" id="L99">                world.remove(this);</span>
+            }
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        } else if (this.hp &lt; 1) {</span>
+<span class="nc" id="L102">            world.remove(this);</span>
+        }
+<span class="fc" id="L104">        notifyAll();</span>
+<span class="fc" id="L105">    }</span>
+
+    private int attackValue;
+
+    public int attackValue() {
+<span class="fc" id="L110">        return this.attackValue;</span>
+    }
+
+    private int defenseValue;
+
+    public int defenseValue() {
+<span class="fc" id="L116">        return this.defenseValue;</span>
+    }
+
+    private int visionRadius;
+
+    public int visionRadius() {
+<span class="fc" id="L122">        return this.visionRadius;</span>
+    }
+
+    // public boolean canSee(int wx, int wy) {
+    //     return ai.canSee(wx, wy);
+    // }
+
+    public Tile tile(int wx, int wy) {
+<span class="nc" id="L130">        return world.tile(wx, wy);</span>
+    }
+
+    public void dig(int wx, int wy) {
+<span class="nc" id="L134">        world.dig(wx, wy);</span>
+<span class="nc" id="L135">    }</span>
+
+    public void moveBy(int mx, int my) {
+<span class="fc" id="L138">        Creature other = world.creature(x + mx, y + my);</span>
+
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (other == null) {</span>
+            // ai.onEnter(x + mx, y + my, world.tile(x + mx, y + my));
+<span class="fc" id="L142">            ai.creature.tryMove(x + mx, y + my);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        } else if (!(other.getAI() instanceof SnakeAI)) {</span>
+<span class="nc" id="L144">            ai.attack(other);</span>
+        }
+<span class="fc" id="L146">    }</span>
+
+    private boolean bulletlike;
+    
+    public void setBullerlike(boolean val) {
+<span class="fc" id="L151">        bulletlike = val;</span>
+<span class="fc" id="L152">    }</span>
+
+    public boolean bulletLike() {
+<span class="nc" id="L155">        return bulletlike;</span>
+    }
+    // every creature invokes this method
+    public void tryMove(int x, int y) {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (!canEnter(x, y)) {</span>
+<span class="nc" id="L160">            System.out.println(&quot;try to move to impossible pos&quot; + x + &quot; &quot; + y);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (ai instanceof SnakeAI) {</span>
+<span class="nc" id="L162">                return;</span>
+            }
+<span class="nc" id="L164">            modifyHP(-maxHP);</span>
+<span class="nc" id="L165">            world.remove(this);</span>
+        } else {
+<span class="fc" id="L167">            Creature other = world.creature(x, y);</span>
+<span class="pc bpc" id="L168" title="3 of 4 branches missed.">            if (other == null || other.bulletLike()) {</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                if (!bulletlike) {</span>
+<span class="fc" id="L170">                    world.occupied[x()][y()].compareAndSet(true, false);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">                    while (world.occupied[x][y].compareAndSet(false, true)) ;</span>
+<span class="fc" id="L172">                    setX(x);</span>
+<span class="fc" id="L173">                    setY(y);</span>
+                } else { // bullet
+<span class="fc" id="L175">                    setX(x);</span>
+<span class="fc" id="L176">                    setY(y);                    </span>
+                }
+                //System.out.println(&quot;tryMove set&quot;);
+            } else {
+<span class="nc bnc" id="L180" title="All 4 branches missed.">                if (this.bulletlike &amp;&amp; other.getAI() instanceof SnakeAI) {</span>
+<span class="nc" id="L181">                    System.out.println(&quot;bullet cannot hurt man&quot;);</span>
+<span class="nc" id="L182">                    return;</span>
+                }
+<span class="nc" id="L184">                ai.attack(other);</span>
+                //System.out.println((int)other.glyph);
+                //System.out.println(&quot;tryMove attack&quot;);
+            }
+        }
+<span class="fc" id="L189">    }</span>
+
+    public void update() {
+<span class="fc" id="L192">        this.ai.onUpdate();</span>
+<span class="fc" id="L193">    }</span>
+
+    public boolean canEnter(int x, int y) {
+        // consider whether tile is locked
+<span class="fc" id="L197">        return world.tile(x, y).isGround();</span>
+    }
+
+    // public void notify(String message, Object... params) {
+    //     ai.onNotify(String.format(message, params));
+    // }
+
+<span class="fc" id="L204">    public Creature(World world, char glyph, Color color, int maxHP, int attack, int defense, int visionRadius) {</span>
+<span class="fc" id="L205">        this.world = world;</span>
+<span class="fc" id="L206">        this.glyph = glyph;</span>
+<span class="fc" id="L207">        this.color = color;</span>
+<span class="fc" id="L208">        this.maxHP = maxHP;</span>
+<span class="fc" id="L209">        this.hp = 0;</span>
+<span class="fc" id="L210">        this.attackValue = attack;</span>
+<span class="fc" id="L211">        this.defenseValue = defense;</span>
+<span class="fc" id="L212">        this.visionRadius = visionRadius;</span>
+<span class="fc" id="L213">        this.bulletlike = false;</span>
+<span class="fc" id="L214">        this.attacked = false;</span>
+<span class="fc" id="L215">        this.attackedGlyph = 0;</span>
+<span class="fc" id="L216">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

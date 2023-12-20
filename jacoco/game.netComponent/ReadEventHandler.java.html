@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReadEventHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.netComponent</a> &gt; <span class="el_source">ReadEventHandler.java</span></div><h1>ReadEventHandler.java</h1><pre class="source lang-java linenums">package game.netComponent;
+
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+
+public class ReadEventHandler implements EventHandler {
+
+    private Selector demultiplexer;
+    private Reactor reactor;
+
+<span class="fc" id="L16">    public ReadEventHandler(Selector demultiplexer, Reactor reactor) {</span>
+<span class="fc" id="L17">        this.demultiplexer = demultiplexer;</span>
+<span class="fc" id="L18">        this.reactor = reactor;</span>
+<span class="fc" id="L19">    }</span>
+
+    public void handleEvent(SelectionKey handle) throws Exception {
+<span class="nc" id="L22">        System.out.println(&quot;===== Read Event Handler =====&quot;);</span>
+
+<span class="nc" id="L24">        ByteBuffer inputBuffer = ByteBuffer.allocate(1024);</span>
+<span class="nc" id="L25">        SocketChannel socketChannel =</span>
+<span class="nc" id="L26">                (SocketChannel) handle.channel();</span>
+
+        // socketChannel.read(inputBuffer); // Read data from client
+
+        // // Rewind the buffer to start reading from the beginning
+        // inputBuffer.flip();
+
+        // byte[] buffer = new byte[inputBuffer.limit()];
+        // inputBuffer.get(buffer);
+
+        // System.out.println(&quot;Received message from client : &quot; +
+        //         new String(buffer));
+
+        // // Rewind the buffer to the previous state.
+        // inputBuffer.flip();
+        // // Register the interest for writable readiness event for
+        // // this channel in order to echo back the message
+        // socketChannel.register(
+        //         demultiplexer, SelectionKey.OP_WRITE, inputBuffer);
+
+<span class="nc" id="L46">        int numRead = -1;</span>
+		try {
+<span class="nc" id="L48">            numRead = socketChannel.read(inputBuffer);</span>
+<span class="nc" id="L49">        } catch (SocketException socketException) {</span>
+            // reactor.getClientKeys().remove(handle);
+<span class="nc" id="L51">			Socket socket = socketChannel.socket();</span>
+<span class="nc" id="L52">			SocketAddress remoteAddr = socket.getRemoteSocketAddress();</span>
+<span class="nc" id="L53">			System.out.println(&quot;Connection closed by client: &quot; + remoteAddr);</span>
+<span class="nc" id="L54">			socketChannel.close();</span>
+<span class="nc" id="L55">			handle.cancel();         </span>
+<span class="nc" id="L56">            return; </span>
+<span class="nc" id="L57">        }</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (numRead != -1) {</span>
+<span class="nc" id="L59">            byte[] data = new byte[numRead];</span>
+<span class="nc" id="L60">            System.arraycopy(inputBuffer.array(), 0, data, 0, numRead);</span>
+            //System.out.println(&quot;Got: &quot; + new String(data));
+<span class="nc" id="L62">            reactor.parseData(data, handle);            </span>
+        }
+<span class="nc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

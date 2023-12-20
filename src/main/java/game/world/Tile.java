@@ -2,7 +2,6 @@ package game.world;
 
 import game.asciiPanel.AsciiPanel;
 import java.awt.Color;
-import java.io.Serializable;
 
 public enum Tile {
 

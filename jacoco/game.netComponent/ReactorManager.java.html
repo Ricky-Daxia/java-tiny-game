@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReactorManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.netComponent</a> &gt; <span class="el_source">ReactorManager.java</span></div><h1>ReactorManager.java</h1><pre class="source lang-java linenums">package game.netComponent;
+
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+
+import game.ServerMain;
+
+<span class="fc" id="L9">public class ReactorManager {</span>
+    private static final int SERVER_PORT = 9093;
+
+    private Reactor reactor;
+
+    public Reactor getReactor() {
+<span class="fc" id="L15">        return reactor;</span>
+    }
+
+    public void startReactor(ServerMain serverMain) throws Exception {
+
+<span class="fc" id="L20">        ServerSocketChannel server = ServerSocketChannel.open();</span>
+<span class="fc" id="L21">        server.socket().bind(new InetSocketAddress(SERVER_PORT));</span>
+<span class="fc" id="L22">        server.configureBlocking(false);</span>
+
+<span class="fc" id="L24">        reactor = new Reactor(serverMain);</span>
+<span class="fc" id="L25">        reactor.registerChannel(SelectionKey.OP_ACCEPT, server);</span>
+
+<span class="fc" id="L27">        reactor.registerEventHandler(</span>
+                SelectionKey.OP_ACCEPT, new AcceptEventHandler(
+<span class="fc" id="L29">                reactor.getDemultiplexer(), reactor));</span>
+
+<span class="fc" id="L31">        reactor.registerEventHandler(</span>
+                SelectionKey.OP_READ, new ReadEventHandler(
+<span class="fc" id="L33">                reactor.getDemultiplexer(), reactor));</span>
+
+<span class="fc" id="L35">        reactor.registerEventHandler(</span>
+                SelectionKey.OP_WRITE, new WriteEventHandler());
+
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (serverMain != null) {</span>
+<span class="nc" id="L39">                reactor.run(); // Run the dispatcher loop</span>
+        }
+
+<span class="fc" id="L42">    }</span>
+
+    // public static void main(String[] args) {
+    //     System.out.println(&quot;Server Started at port : &quot; + SERVER_PORT);
+    //     try {
+    //         new ReactorManager().startReactor(SERVER_PORT);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

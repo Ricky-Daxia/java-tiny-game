@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsciiFont.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.asciiPanel</a> &gt; <span class="el_source">AsciiFont.java</span></div><h1>AsciiFont.java</h1><pre class="source lang-java linenums">package game.asciiPanel;
+
+/**
+ * This class holds provides all available Fonts for the AsciiPanel. Some
+ * graphics are from the Dwarf Fortress Tileset Wiki Page
+ * 
+ * @author zn80
+ *
+ */
+public class AsciiFont {
+
+<span class="fc" id="L12">    public static final AsciiFont CP437_8x8 = new AsciiFont(&quot;cp437_8x8.png&quot;, 8, 8);</span>
+<span class="fc" id="L13">    public static final AsciiFont CP437_10x10 = new AsciiFont(&quot;cp437_10x10.png&quot;, 10, 10);</span>
+<span class="fc" id="L14">    public static final AsciiFont CP437_12x12 = new AsciiFont(&quot;cp437_12x12.png&quot;, 12, 12);</span>
+<span class="fc" id="L15">    public static final AsciiFont CP437_16x16 = new AsciiFont(&quot;cp437_16x16.png&quot;, 16, 16);</span>
+<span class="fc" id="L16">    public static final AsciiFont CP437_9x16 = new AsciiFont(&quot;cp437_9x16.png&quot;, 9, 16);</span>
+<span class="fc" id="L17">    public static final AsciiFont DRAKE_10x10 = new AsciiFont(&quot;drake_10x10.png&quot;, 10, 10);</span>
+<span class="fc" id="L18">    public static final AsciiFont TAFFER_10x10 = new AsciiFont(&quot;taffer_10x10.png&quot;, 10, 10);</span>
+<span class="fc" id="L19">    public static final AsciiFont QBICFEET_10x10 = new AsciiFont(&quot;qbicfeet_10x10.png&quot;, 10, 10);</span>
+<span class="fc" id="L20">    public static final AsciiFont TALRYTH_15_15 = new AsciiFont(&quot;talryth_square_15x15.png&quot;, 15, 15);</span>
+<span class="fc" id="L21">    public static final AsciiFont gold = new AsciiFont(&quot;Gold_plated_24x24.png&quot;, 24, 24);</span>
+<span class="fc" id="L22">    public static final AsciiFont Bisasam = new AsciiFont(&quot;Bisasam_24x24.png&quot;, 24, 24);</span>
+
+    private String fontFilename;
+
+    public String getFontFilename() {
+<span class="fc" id="L27">        return fontFilename;</span>
+    }
+
+    private int width;
+
+    public int getWidth() {
+<span class="fc" id="L33">        return width;</span>
+    }
+
+    private int height;
+
+    public int getHeight() {
+<span class="fc" id="L39">        return height;</span>
+    }
+
+<span class="fc" id="L42">    public AsciiFont(String filename, int width, int height) {</span>
+<span class="fc" id="L43">        this.fontFilename = filename;</span>
+<span class="fc" id="L44">        this.width = width;</span>
+<span class="fc" id="L45">        this.height = height;</span>
+<span class="fc" id="L46">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

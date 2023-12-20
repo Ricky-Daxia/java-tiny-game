@@ -35,7 +35,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     // private int direction = 1;
 
     private HashMap<Integer, Creature> snakes;
-    private Creature boss;
+    private List<Creature> bossList;
     private CreatureFactory factory;
 
     // private List<String> messages;
@@ -52,6 +52,7 @@ public class SnakeGameScreen implements Screen, Serializable {
 
         CreatureFactory creatureFactory = new CreatureFactory(this.world);
         this.factory = creatureFactory;
+        this.bossList = new ArrayList<>();
         createCreatures(creatureFactory);
     }
 
@@ -63,8 +64,9 @@ public class SnakeGameScreen implements Screen, Serializable {
         for (int i = 0; i < 5; i++) {
             creatureFactory.newBean();
         }
-
-        this.boss = creatureFactory.newBoss(creatureFactory);
+        for (int i = 0; i < 2; i++) {
+            this.bossList.add(creatureFactory.newBoss(creatureFactory));
+        }
     }
 
     public void registerSnake(int id) {
@@ -140,6 +142,15 @@ public class SnakeGameScreen implements Screen, Serializable {
             world.setManPos(manPos);      
         }
         world.update();
+        synchronized (this.bossList) {
+            int[] x = new int[this.bossList.size()];
+            int[] y = new int[this.bossList.size()];
+            for (int k = 0; k < this.bossList.size(); k++) {
+                x[k] = this.bossList.get(k).x();
+                y[k] = this.bossList.get(k).y();
+            }
+            world.setPolluted(x, y);
+        }
     }
 
     // private void displayMessages(AsciiPanel terminal, List<String> messages) {
@@ -178,10 +189,23 @@ public class SnakeGameScreen implements Screen, Serializable {
         // }
 
         if (this.snakes.get(id).hp() < 0) {
-            this.factory.getExecutor().shutdown();
+            //this.factory.getExecutor().shutdown();
             return new LoseScreen();
-        } else if (this.boss.hp() < 1) {
-            this.factory.getExecutor().shutdown();
+        }
+        boolean ok = true;
+        List<Creature> del = new ArrayList<>();
+        for (Creature boss: this.bossList) {
+            if (boss.hp() < 1) {
+                del.add(boss);
+            } else {
+                ok = false;
+            }
+        }
+        for (Creature boss: del) {
+            this.bossList.remove(boss);
+        }
+        if (ok) {
+            //this.factory.getExecutor().shutdown();
             return new WinScreen();
         }
 
@@ -220,11 +244,24 @@ public class SnakeGameScreen implements Screen, Serializable {
     public Screen respondToUserInput(int e, int id) {
 
         if (this.snakes.get(id).hp() < 0) {
-            this.factory.getExecutor().shutdown();
+            //this.factory.getExecutor().shutdown();
             this.snakes.remove(id);
             return new LoseScreen();
-        } else if (this.boss.hp() < 1) {
-            this.factory.getExecutor().shutdown();
+        }
+        boolean ok = true;
+        List<Creature> del = new ArrayList<>();
+        for (Creature boss: this.bossList) {
+            if (boss.hp() < 1) {
+                del.add(boss);
+            } else {
+                ok = false;
+            }
+        }
+        for (Creature boss: del) {
+            this.bossList.remove(boss);
+        }
+        if (ok) {
+            //this.factory.getExecutor().shutdown();
             return new WinScreen();
         }
 
@@ -277,7 +314,9 @@ public class SnakeGameScreen implements Screen, Serializable {
             for (Creature snake: this.snakes.values()) {
                 this.factory.setSnakeTask((SnakeAI) snake.getAI());
             }            
-            this.factory.setBossTask((BossAI) this.boss.getAI());
+            for (Creature boss: this.bossList) {
+                this.factory.setBossTask((BossAI) boss.getAI());
+            }
         }
     }
 

@@ -17,7 +17,6 @@
  */
 package game.world;
 
-import java.awt.Point;
 import java.io.Serializable;
 import java.util.concurrent.ScheduledFuture;
 

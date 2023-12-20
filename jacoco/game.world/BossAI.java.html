@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BossAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">BossAI.java</span></div><h1>BossAI.java</h1><pre class="source lang-java linenums">package game.world;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+public class BossAI extends CreatureAI {
+
+<span class="fc" id="L8">    private int[] dirX = {1, 1, 0, -1, -1, -1, 0, 1};</span>
+<span class="fc" id="L9">    private int[] dirY = {0, 1, 1, 1, 0, -1, -1, -1};</span>
+<span class="fc" id="L10">    private int[] dx = {-1, 0, 1, 0};</span>
+<span class="fc" id="L11">    private int[] dy = {0, 1, 0, -1};</span>
+
+    // private List&lt;String&gt; messages;
+
+    private CreatureFactory factory;
+
+    private int interval;
+
+    private int[] manPrev;
+    
+    public BossAI(Creature creature, CreatureFactory factory) {
+<span class="fc" id="L22">        super(creature);</span>
+<span class="fc" id="L23">        this.factory = factory;</span>
+<span class="fc" id="L24">        interval = 0;</span>
+<span class="fc" id="L25">        manPrev = null;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public void onEnter(int x, int y, Tile tile) {
+<span class="nc" id="L30">        creature.tryMove(x, y);</span>
+<span class="nc" id="L31">    }</span>
+
+    private int[][] analyse(World world) {
+<span class="fc" id="L34">        int width = world.width();</span>
+<span class="fc" id="L35">        int height = world.height();</span>
+<span class="fc" id="L36">        int[][] dist = new int[width][height];</span>
+<span class="fc" id="L37">        boolean[][] vis = new boolean[width][height];</span>
+<span class="fc" id="L38">        int[] manPos = world.getManPos();</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        for (int i = 0; i &lt; width; i++) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">            for (int j = 0; j &lt; height; j++) {</span>
+<span class="fc" id="L41">                dist[i][j] = 100000;</span>
+<span class="fc" id="L42">                vis[i][j] = false;</span>
+            }
+        }
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (manPos == null) {</span>
+<span class="fc" id="L46">            return dist;</span>
+        }
+<span class="nc" id="L48">        Queue&lt;int[]&gt; queue = new ArrayDeque&lt;&gt;();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (int mask: manPos) {</span>
+<span class="nc" id="L50">            int x = mask &gt;&gt; 10 &amp; 0x3ff, y = mask &amp; 0x3ff;</span>
+<span class="nc" id="L51">            dist[x][y] = 0;</span>
+<span class="nc" id="L52">            vis[x][y] = true;</span>
+<span class="nc" id="L53">            queue.add(new int[]{x, y});</span>
+        }
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        while (queue.size() &gt; 0) {</span>
+<span class="nc" id="L56">            int sz = queue.size();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (; sz &gt; 0; sz--) {</span>
+<span class="nc" id="L58">                int[] front = queue.poll();</span>
+<span class="nc" id="L59">                int x = front[0], y = front[1];</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L61">                    int newX = x + dx[i], newY = y + dy[i];</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">                    if (world.tile(newX, newY).isGround() &amp;&amp; dist[newX][newY] &gt; dist[x][y] + 1) {</span>
+<span class="nc" id="L63">                        queue.add(new int[]{newX, newY});</span>
+<span class="nc" id="L64">                        vis[newX][newY] = true;</span>
+<span class="nc" id="L65">                        dist[newX][newY] = dist[x][y] + 1;</span>
+                    }
+                }                
+            }
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">        return dist;</span>
+    }
+
+    @Override
+    public void onUpdate() {
+<span class="fc" id="L75">        World world = creature.getWorld();</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (creature.hp() &lt; 1) {</span>
+<span class="nc" id="L77">            world.remove(creature);</span>
+<span class="nc" id="L78">            task.cancel(true);</span>
+<span class="nc" id="L79">            System.out.println(&quot;boss died&quot;);</span>
+<span class="nc" id="L80">            return;</span>
+        }        
+        // if (world.creature(world.getManPosX(), world.getManPosY()) == null || world.creature(world.getManPosX(), world.getManPosY()).hp() &lt; 0) {
+        //     System.out.println(&quot;man has died&quot;);
+        //     return;
+        // }
+<span class="fc" id="L86">        int x = creature.x();</span>
+<span class="fc" id="L87">        int y = creature.y();</span>
+<span class="fc" id="L88">        int[][] dist = analyse(world);</span>
+<span class="fc" id="L89">        int newX = x, newY = y, minDist = dist[x][y];</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; 8; i++) {</span>
+<span class="fc" id="L91">            int nx = x + dirX[i], ny = y + dirY[i];</span>
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">            if (world.tile(nx, ny).isGround() &amp;&amp; dist[nx][ny] &lt; minDist) {</span>
+<span class="nc" id="L93">                newX = nx;</span>
+<span class="nc" id="L94">                newY = ny;</span>
+<span class="nc" id="L95">                minDist = dist[nx][ny];</span>
+            }
+        }
+<span class="pc bpc" id="L98" title="2 of 4 branches missed.">        if (newX != x || newY != y) {</span>
+<span class="nc" id="L99">            creature.tryMove(newX, newY);</span>
+        }
+        // world.setPolluted(creature.x(), creature.y());
+
+<span class="fc" id="L103">        interval++;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (interval == 1) {</span>
+<span class="fc" id="L105">            manPrev = world.getManPos();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        } else if (interval == 5) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (manPrev == null) {</span>
+<span class="nc" id="L108">                System.out.println(&quot;man null????&quot;);</span>
+            } else {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                for (int mask: manPrev) {</span>
+<span class="nc" id="L111">                    int manX = mask &gt;&gt; 10 &amp; 0x3ff, manY = mask &amp; 0x3ff;</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                    for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L113">                        int dogX = manX + dx[i], dogY = manY + dy[i];</span>
+<span class="nc" id="L114">                        factory.newDog(dogX, dogY);</span>
+                    }                
+                }                
+            }
+<span class="nc" id="L118">            interval = 0;</span>
+        }
+<span class="fc" id="L120">    }</span>
+
+    @Override
+    public void attack(Creature another) {
+<span class="nc" id="L124">        another.modifyHP(-creature.attackValue());</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">        if (another.getAI() instanceof DogAI || another.getAI() instanceof BossAI) {</span>
+            ;
+        } else {
+<span class="nc" id="L128">            creature.modifyHP(-another.attackValue());</span>
+        }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (another.hp() &lt; 1) {</span>
+<span class="nc" id="L131">            creature.getWorld().remove(another);</span>
+            //creature.tryMove(another.x(), another.y());
+        }
+<span class="nc" id="L134">    }</span>
+
+    // @Override
+    // public void onNotify(String message) {
+
+    // }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

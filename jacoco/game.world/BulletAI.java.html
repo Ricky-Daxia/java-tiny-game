@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BulletAI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">BulletAI.java</span></div><h1>BulletAI.java</h1><pre class="source lang-java linenums">package game.world;
+
+public class BulletAI extends CreatureAI {
+
+    private int dx;
+    private int dy;
+    
+    public BulletAI(Creature creature, int dx, int dy) {
+<span class="fc" id="L9">        super(creature);</span>
+<span class="fc" id="L10">        this.dx = dx;</span>
+<span class="fc" id="L11">        this.dy = dy;</span>
+<span class="fc" id="L12">        creature.setBullerlike(true);</span>
+<span class="fc" id="L13">    }</span>
+
+    @Override 
+    public void onUpdate() {
+<span class="fc" id="L17">        creature.tryMove(creature.x() + dx, creature.y() + dy);</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public void onEnter(int x, int y, Tile tile) {
+<span class="fc" id="L22">        throw new UnsupportedOperationException(&quot;Unimplemented method 'onEnter'&quot;);</span>
+    }
+
+    // @Override
+    // public void onNotify(String message) {
+    //     throw new UnsupportedOperationException(&quot;Unimplemented method 'onNotify'&quot;);
+    // }
+
+    @Override
+    public void attack(Creature another) {
+<span class="nc" id="L32">        another.modifyHP(-creature.attackValue());</span>
+<span class="nc" id="L33">        creature.modifyHP(-another.attackValue());</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (another.hp() &lt; 1) {</span>
+<span class="nc" id="L35">            creature.getWorld().remove(another);</span>
+        }
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (creature.hp() &lt; 1) {</span>
+<span class="nc" id="L38">            creature.getWorld().remove(creature);</span>
+        }
+<span class="nc" id="L40">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

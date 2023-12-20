@@ -98,7 +98,7 @@ public class BossAI extends CreatureAI {
         if (newX != x || newY != y) {
             creature.tryMove(newX, newY);
         }
-        world.setPolluted(creature.x(), creature.y());
+        // world.setPolluted(creature.x(), creature.y());
 
         interval++;
         if (interval == 1) {
@@ -122,7 +122,7 @@ public class BossAI extends CreatureAI {
     @Override
     public void attack(Creature another) {
         another.modifyHP(-creature.attackValue());
-        if (another.getAI() instanceof DogAI) {
+        if (another.getAI() instanceof DogAI || another.getAI() instanceof BossAI) {
             ;
         } else {
             creature.modifyHP(-another.attackValue());

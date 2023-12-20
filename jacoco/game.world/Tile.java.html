@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">j05</a> &gt; <a href="index.source.html" class="el_package">game.world</a> &gt; <span class="el_source">Tile.java</span></div><h1>Tile.java</h1><pre class="source lang-java linenums">package game.world;
+
+import game.asciiPanel.AsciiPanel;
+import java.awt.Color;
+
+<span class="fc" id="L6">public enum Tile {</span>
+
+<span class="fc" id="L8">    FLOOR((char) 250, AsciiPanel.green), // 0</span>
+
+<span class="fc" id="L10">    WALL((char) 176, AsciiPanel.brightBlack), // 1</span>
+
+<span class="fc" id="L12">    WATER((char) 240, AsciiPanel.blue), // 2</span>
+
+<span class="fc" id="L14">    LeftUp((char) 218, AsciiPanel.magenta), // 3</span>
+
+<span class="fc" id="L16">    RightUp((char) 191, AsciiPanel.magenta), // 4</span>
+
+<span class="fc" id="L18">    LeftDown((char) 192, AsciiPanel.magenta), // 5</span>
+
+<span class="fc" id="L20">    RightDown((char) 217, AsciiPanel.magenta), // 6</span>
+
+<span class="fc" id="L22">    Horizontal((char) 220, AsciiPanel.magenta), // 7</span>
+
+<span class="fc" id="L24">    Vertical((char) 222, AsciiPanel.magenta), // 8</span>
+
+<span class="fc" id="L26">    Polluted((char) 253, AsciiPanel.magenta); // 9 </span>
+
+    private char glyph;
+
+    public char glyph() {
+<span class="fc" id="L31">        return glyph;</span>
+    }
+
+    private Color color;
+
+    public Color color() {
+<span class="fc" id="L37">        return color;</span>
+    }
+
+    public boolean isDiggable() {
+<span class="fc" id="L41">        return false;</span>
+    }
+
+    public boolean isGround() {
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">        return this == Tile.FLOOR || this == Tile.Polluted;</span>
+    }
+
+    public boolean isPolluted() {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        return this == Tile.Polluted;</span>
+    }
+
+<span class="fc" id="L52">    Tile(char glyph, Color color) {</span>
+<span class="fc" id="L53">        this.glyph = glyph;</span>
+<span class="fc" id="L54">        this.color = color;</span>
+<span class="fc" id="L55">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
