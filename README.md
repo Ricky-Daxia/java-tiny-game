@@ -44,7 +44,7 @@
 - 主要的测试覆盖范围为 `asciiPanel`、`world` 和 `screen` 模块，通过创建新的对象并调用对象的方法，综合使用了 `assertEquals`、`assertNotNull` 和 `expected` + 异常等手段进行测试
 - 某些方法的输入难以直接创建，如 `KeyEvent` 事件、`SelectionKey` 对象等，采用 `mockito` 插件来模拟输入
 - 项目的代码覆盖率为 `68%`，其中主要覆盖范围的覆盖率达到 `70%`。由于 `game` 和 `netComponent` 模块中包含网络通信、监听和处理玩家键盘输入的逻辑，较难在单元测试中覆盖，因此覆盖率较低。完整的代码覆盖率截图如下
-![image](image\report.png)
+![image](image/report.png)
 - 完整的报告保存在 `jacoco\` 目录下
 ### j08 - IO
 #### 地图保存/加载
@@ -69,11 +69,11 @@
 `Server` 的设计
 - 作为服务器，Server 中应该维护不同类型的 `Screen` 实例，同时负责各个 screen 的更新
 - 每个玩家所处的状态各有不同，但是状态之间转换的规则是相同的，因此可以用有限状态机对玩家状态进行建模
-    - 设 $DFA=\{Q, \Sigma, \delta, q_0, F\}$
-    - $Q$：由于每个 screen 都可以代表一种状态，因此把 `StartScreen`、`WinScreen`、`LoseScreen` 和 `SnakeGameScreen` 分别编号为 0、1、2、3，作为状态集合，因此 $Q=\{0,1,2,3\}$
+    - 设 $DFA=\lbrace Q, \Sigma, \delta, q_0, F \rbrace$
+    - $Q$：由于每个 screen 都可以代表一种状态，因此把 `StartScreen`、`WinScreen`、`LoseScreen` 和 `SnakeGameScreen` 分别编号为 0、1、2、3，作为状态集合，因此 $Q=\lbrace 0,1,2,3\rbrace$
     - $\Sigma$：由于每个 screen 在接收键盘事件后发生状态的改变，因此输入集合就是键盘事件
     - $q_0$：每个玩家初始时都处于 `StartScreen` 中，因此 $q_0=0$
-    - $F$：可以认为 `WinScreen` 是可被接收的状态，因此 $F=\{3\}$
+    - $F$：可以认为 `WinScreen` 是可被接收的状态，因此 $F=\lbrace 3\rbrace$
     - $\delta$：直接根据 `Screen` 的 `respondToUserInput()` 方法返回值的 `Screen` 类型判断属于哪个状态即可，即假设映射函数为 $f$，输入 $a\in \Sigma$，当前状态为 $s$，那么 $\delta(s,a)=f(f^{-1}(s).respondToUserInput(a))$，其中 $f^{-1}$ 把当前状态映射到对应的 `Screen` 对象中
 - 在 `Server` 中维护映射 `HashMap<Integer, Integer> states`，用于记录每个玩家的状态，Server 接收到来自 Reactor 的键盘事件输入后，首先获取这次事件对应的玩家 ID，实现上可以通过 `SelectionKey.attachment()` 来获得，然后传入 DFA 中调用 `respondToUserInput()` ，完成对键盘事件的响应并更新状态
 - 在 `Server` 调用 `repaint()` 方法更新 screen 对象时，会同时向各个玩家发送它们各自的 screen，实现上是遍历 Reactor 的 SelectionKey 集合，取得每个 key 对应 ID 的状态，然后把对应 screen 信息序列化并写到 channel 的 buffer 中
