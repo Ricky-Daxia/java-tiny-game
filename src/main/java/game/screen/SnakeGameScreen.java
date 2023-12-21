@@ -23,7 +23,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     private static final int WORLD_HEIGHT = 40;
 
     private static final int SCREEN_WIDTH = 40;
-    private static final int SCREEN_HEIGHT = 40;
+    private static final int SCREEN_HEIGHT = 20;
 
     // private static final int LEFT_KEY = 37;
     // private static final int RIGHT_KEY = 39;
@@ -81,7 +81,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     public void displayOutput(AsciiPanel terminal, int id) {
 
         // Terrain and creatures
-        displayTiles(terminal, getScrollX(), getScrollY());
+        displayTiles(terminal, getScrollX(id), getScrollY(id));
         // Player
         //((GlyphDelegate) snake.getAI()).printGlyph(terminal, getScrollX(), getScrollY());
         // Stats
@@ -162,12 +162,18 @@ public class SnakeGameScreen implements Screen, Serializable {
     //     messages.clear();
     // }
 
-    public int getScrollX() {
-        return 0; //Math.max(0, Math.min(snake.x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));
+    public int getScrollX(int id) {
+        if (snakes.get(id) == null) {
+            return 0;
+        }
+        return Math.max(0, Math.min(snakes.get(id).x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));
     }
 
-    public int getScrollY() {
-        return 0; //Math.max(0, Math.min(snake.y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));
+    public int getScrollY(int id) {
+        if (snakes.get(id) == null) {
+            return 0;
+        }
+        return Math.max(0, Math.min(snakes.get(id).y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));
     }
 
     @Override

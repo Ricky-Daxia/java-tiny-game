@@ -37,7 +37,7 @@ public class ServerMain extends JFrame {
 
     public ServerMain() {
         super();
-        terminal = new AsciiPanel(40, 40, AsciiFont.gold);
+        terminal = new AsciiPanel(40, 20, AsciiFont.gold);
         add(terminal);
         pack();
         startScreen = new StartScreen();

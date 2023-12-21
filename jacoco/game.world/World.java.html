@@ -75,7 +75,7 @@ public class World implements Serializable {
         do {
 <span class="fc" id="L76">            x = (int) (Math.random() * this.width);</span>
 <span class="fc" id="L77">            y = (int) (Math.random() * this.height);</span>
-<span class="pc bpc" id="L78" title="2 of 6 branches missed.">        } while (!tile(x, y).isGround() || this.creature(x, y) != null || !this.occupied[x][y].compareAndSet(false, true));</span>
+<span class="pc bpc" id="L78" title="1 of 6 branches missed.">        } while (!tile(x, y).isGround() || this.creature(x, y) != null || !this.occupied[x][y].compareAndSet(false, true));</span>
     
 <span class="fc" id="L80">        creature.setX(x);</span>
 <span class="fc" id="L81">        creature.setY(y);</span>
@@ -103,8 +103,8 @@ public class World implements Serializable {
 <span class="fc" id="L103">        Creature creature = null;</span>
 <span class="fc" id="L104">        this.creaturesLock.lock();</span>
 <span class="fc bfc" id="L105" title="All 2 branches covered.">        for (Creature c : this.creatures) {</span>
-<span class="pc bpc" id="L106" title="1 of 4 branches missed.">            if (c.x() == x &amp;&amp; c.y() == y) {</span>
-<span class="nc" id="L107">                creature = c;</span>
+<span class="fc bfc" id="L106" title="All 4 branches covered.">            if (c.x() == x &amp;&amp; c.y() == y) {</span>
+<span class="fc" id="L107">                creature = c;</span>
             }
 <span class="fc" id="L109">        }</span>
 <span class="fc" id="L110">        this.creaturesLock.unlock();</span>

@@ -157,7 +157,7 @@ public class Creature implements Serializable {
     // every creature invokes this method
     public void tryMove(int x, int y) {
         if (!canEnter(x, y)) {
-            System.out.println("try to move to impossible pos" + x + " " + y);
+            //System.out.println("try to move to impossible pos" + x + " " + y);
             if (ai instanceof SnakeAI) {
                 return;
             }

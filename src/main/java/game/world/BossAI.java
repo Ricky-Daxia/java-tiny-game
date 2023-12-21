@@ -105,7 +105,7 @@ public class BossAI extends CreatureAI {
             manPrev = world.getManPos();
         } else if (interval == 5) {
             if (manPrev == null) {
-                System.out.println("man null????");
+                //System.out.println("man null????");
             } else {
                 for (int mask: manPrev) {
                     int manX = mask >> 10 & 0x3ff, manY = mask & 0x3ff;
@@ -121,8 +121,11 @@ public class BossAI extends CreatureAI {
 
     @Override
     public void attack(Creature another) {
+        if (another.getAI() instanceof BossAI) {
+            return;
+        }
         another.modifyHP(-creature.attackValue());
-        if (another.getAI() instanceof DogAI || another.getAI() instanceof BossAI) {
+        if (another.getAI() instanceof DogAI) {
             ;
         } else {
             creature.modifyHP(-another.attackValue());

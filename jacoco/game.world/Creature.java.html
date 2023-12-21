@@ -99,7 +99,7 @@ public class Creature implements Serializable {
 <span class="fc" id="L99">                world.remove(this);</span>
             }
 <span class="fc bfc" id="L101" title="All 2 branches covered.">        } else if (this.hp &lt; 1) {</span>
-<span class="nc" id="L102">            world.remove(this);</span>
+<span class="fc" id="L102">            world.remove(this);</span>
         }
 <span class="fc" id="L104">        notifyAll();</span>
 <span class="fc" id="L105">    }</span>
@@ -156,13 +156,13 @@ public class Creature implements Serializable {
     }
     // every creature invokes this method
     public void tryMove(int x, int y) {
-<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (!canEnter(x, y)) {</span>
-<span class="nc" id="L160">            System.out.println(&quot;try to move to impossible pos&quot; + x + &quot; &quot; + y);</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (ai instanceof SnakeAI) {</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (!canEnter(x, y)) {</span>
+<span class="fc" id="L160">            System.out.println(&quot;try to move to impossible pos&quot; + x + &quot; &quot; + y);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (ai instanceof SnakeAI) {</span>
 <span class="nc" id="L162">                return;</span>
             }
-<span class="nc" id="L164">            modifyHP(-maxHP);</span>
-<span class="nc" id="L165">            world.remove(this);</span>
+<span class="fc" id="L164">            modifyHP(-maxHP);</span>
+<span class="fc" id="L165">            world.remove(this);</span>
         } else {
 <span class="fc" id="L167">            Creature other = world.creature(x, y);</span>
 <span class="pc bpc" id="L168" title="3 of 4 branches missed.">            if (other == null || other.bulletLike()) {</span>

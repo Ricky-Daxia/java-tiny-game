@@ -2,6 +2,7 @@ package game;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -29,7 +30,7 @@ public class Client extends JFrame implements KeyListener {
 
     public Client() {
         super();
-        terminal = new AsciiPanel(40, 40, AsciiFont.gold);
+        terminal = new AsciiPanel(40, 20, AsciiFont.gold);
         add(terminal);
         pack();
         addKeyListener(this);
@@ -124,21 +125,25 @@ public class Client extends JFrame implements KeyListener {
                                 int length = channel.read(byteBuffer);
                                 //System.out.println(length);
                                 byte[] bufferArray = byteBuffer.array();
-                                ByteArrayInputStream bis = new ByteArrayInputStream(bufferArray);
-                                ObjectInputStream ois = new ObjectInputStream(bis);
-                                if (app.cnt == 0) {
-                                    app.id = (int) ois.readObject();
-                                    app.cnt++;
-                                    //System.out.println(length + " id= " + app.id);
-                                } else {
-                                    try {
-                                        app.screen = (Screen) ois.readObject();
-                                        app.repaint();
-                                    } catch (Exception e) {
-                                        System.out.println("decode screen failed");
-                                    } finally {
-                                        ois.close();
-                                    }                                    
+                                try (ByteArrayInputStream bis = new ByteArrayInputStream(bufferArray);
+                                ObjectInputStream ois = new ObjectInputStream(bis)) {
+                                    if (app.cnt == 0) {
+                                        app.id = (int) ois.readObject();
+                                        app.cnt++;
+                                        //System.out.println(length + " id= " + app.id);
+                                    } else {
+                                        try {
+                                            app.screen = (Screen) ois.readObject();
+                                            app.repaint();
+                                        } catch (Exception e) {
+                                            System.out.println("decode screen failed");
+                                        } finally {
+                                            ois.close();
+                                        }                                    
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    System.out.println("ois failed");
                                 }
                             }
                             iterator.remove();

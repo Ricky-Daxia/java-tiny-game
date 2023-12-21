@@ -121,17 +121,20 @@ public class BossAI extends CreatureAI {
 
     @Override
     public void attack(Creature another) {
-<span class="nc" id="L124">        another.modifyHP(-creature.attackValue());</span>
-<span class="nc bnc" id="L125" title="All 4 branches missed.">        if (another.getAI() instanceof DogAI || another.getAI() instanceof BossAI) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (another.getAI() instanceof BossAI) {</span>
+<span class="nc" id="L125">            return;</span>
+        }
+<span class="nc" id="L127">        another.modifyHP(-creature.attackValue());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (another.getAI() instanceof DogAI) {</span>
             ;
         } else {
-<span class="nc" id="L128">            creature.modifyHP(-another.attackValue());</span>
+<span class="nc" id="L131">            creature.modifyHP(-another.attackValue());</span>
         }
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (another.hp() &lt; 1) {</span>
-<span class="nc" id="L131">            creature.getWorld().remove(another);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (another.hp() &lt; 1) {</span>
+<span class="nc" id="L134">            creature.getWorld().remove(another);</span>
             //creature.tryMove(another.x(), another.y());
         }
-<span class="nc" id="L134">    }</span>
+<span class="nc" id="L137">    }</span>
 
     // @Override
     // public void onNotify(String message) {

@@ -23,7 +23,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     private static final int WORLD_HEIGHT = 40;
 
     private static final int SCREEN_WIDTH = 40;
-    private static final int SCREEN_HEIGHT = 40;
+    private static final int SCREEN_HEIGHT = 20;
 
     // private static final int LEFT_KEY = 37;
     // private static final int RIGHT_KEY = 39;
@@ -81,7 +81,7 @@ public class SnakeGameScreen implements Screen, Serializable {
     public void displayOutput(AsciiPanel terminal, int id) {
 
         // Terrain and creatures
-<span class="fc" id="L84">        displayTiles(terminal, getScrollX(), getScrollY());</span>
+<span class="fc" id="L84">        displayTiles(terminal, getScrollX(id), getScrollY(id));</span>
         // Player
         //((GlyphDelegate) snake.getAI()).printGlyph(terminal, getScrollX(), getScrollY());
         // Stats
@@ -113,8 +113,8 @@ public class SnakeGameScreen implements Screen, Serializable {
         // Show creatures
         // world.lock();
 <span class="fc bfc" id="L115" title="All 2 branches covered.">        for (Creature creature : world.getCreatures()) {</span>
-<span class="pc bpc" id="L116" title="3 of 6 branches missed.">            if (creature.x() &gt;= left &amp;&amp; creature.x() &lt; left + SCREEN_WIDTH &amp;&amp; creature.y() &gt;= top</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                    &amp;&amp; creature.y() &lt; top + SCREEN_HEIGHT) {</span>
+<span class="pc bpc" id="L116" title="2 of 6 branches missed.">            if (creature.x() &gt;= left &amp;&amp; creature.x() &lt; left + SCREEN_WIDTH &amp;&amp; creature.y() &gt;= top</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">                    &amp;&amp; creature.y() &lt; top + SCREEN_HEIGHT) {</span>
                 // if (snake.canSee(creature.x(), creature.y())) {
                 // if (creature.getAI() instanceof GlyphDelegate) {
                 //     ((GlyphDelegate) creature.getAI()).printGlyph(terminal, left, top);
@@ -162,12 +162,18 @@ public class SnakeGameScreen implements Screen, Serializable {
     //     messages.clear();
     // }
 
-    public int getScrollX() {
-<span class="fc" id="L166">        return 0; //Math.max(0, Math.min(snake.x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));</span>
+    public int getScrollX(int id) {
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (snakes.get(id) == null) {</span>
+<span class="fc" id="L167">            return 0;</span>
+        }
+<span class="fc" id="L169">        return Math.max(0, Math.min(snakes.get(id).x() - SCREEN_WIDTH / 2, world.width() - SCREEN_WIDTH));</span>
     }
 
-    public int getScrollY() {
-<span class="fc" id="L170">        return 0; //Math.max(0, Math.min(snake.y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));</span>
+    public int getScrollY(int id) {
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (snakes.get(id) == null) {</span>
+<span class="fc" id="L174">            return 0;</span>
+        }
+<span class="fc" id="L176">        return Math.max(0, Math.min(snakes.get(id).y() - SCREEN_HEIGHT / 2, world.height() - SCREEN_HEIGHT));</span>
     }
 
     @Override
@@ -188,144 +194,144 @@ public class SnakeGameScreen implements Screen, Serializable {
         // break;
         // }
 
-<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (this.snakes.get(id).hp() &lt; 0) {</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">        if (this.snakes.get(id).hp() &lt; 0) {</span>
             //this.factory.getExecutor().shutdown();
-<span class="nc" id="L193">            return new LoseScreen();</span>
+<span class="nc" id="L199">            return new LoseScreen();</span>
         }
-<span class="fc" id="L195">        boolean ok = true;</span>
-<span class="fc" id="L196">        List&lt;Creature&gt; del = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L197" title="All 2 branches covered.">        for (Creature boss: this.bossList) {</span>
-<span class="pc bpc" id="L198" title="1 of 2 branches missed.">            if (boss.hp() &lt; 1) {</span>
-<span class="nc" id="L199">                del.add(boss);</span>
+<span class="fc" id="L201">        boolean ok = true;</span>
+<span class="fc" id="L202">        List&lt;Creature&gt; del = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        for (Creature boss: this.bossList) {</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">            if (boss.hp() &lt; 1) {</span>
+<span class="nc" id="L205">                del.add(boss);</span>
             } else {
-<span class="fc" id="L201">                ok = false;</span>
+<span class="fc" id="L207">                ok = false;</span>
             }
-<span class="fc" id="L203">        }</span>
-<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        for (Creature boss: del) {</span>
-<span class="nc" id="L205">            this.bossList.remove(boss);</span>
-<span class="nc" id="L206">        }</span>
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        if (ok) {</span>
+<span class="fc" id="L209">        }</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        for (Creature boss: del) {</span>
+<span class="nc" id="L211">            this.bossList.remove(boss);</span>
+<span class="nc" id="L212">        }</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">        if (ok) {</span>
             //this.factory.getExecutor().shutdown();
-<span class="nc" id="L209">            return new WinScreen();</span>
+<span class="nc" id="L215">            return new WinScreen();</span>
         }
 
-<span class="pc bpc" id="L212" title="8 of 9 branches missed.">        switch (key.getKeyCode()) {</span>
+<span class="pc bpc" id="L218" title="8 of 9 branches missed.">        switch (key.getKeyCode()) {</span>
             case KeyEvent.VK_LEFT:
-<span class="nc" id="L214">                snakes.get(id).moveBy(-1, 0);</span>
-<span class="nc" id="L215">                break;</span>
-            case KeyEvent.VK_RIGHT:
-<span class="nc" id="L217">                snakes.get(id).moveBy(1, 0);</span>
-<span class="nc" id="L218">                break;</span>
-            case KeyEvent.VK_UP:
-<span class="nc" id="L220">                snakes.get(id).moveBy(0, -1);</span>
+<span class="nc" id="L220">                snakes.get(id).moveBy(-1, 0);</span>
 <span class="nc" id="L221">                break;</span>
-            case KeyEvent.VK_DOWN:
-<span class="nc" id="L223">                snakes.get(id).moveBy(0, 1);</span>
+            case KeyEvent.VK_RIGHT:
+<span class="nc" id="L223">                snakes.get(id).moveBy(1, 0);</span>
 <span class="nc" id="L224">                break;</span>
-            case KeyEvent.VK_A:
-<span class="nc" id="L226">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);</span>
+            case KeyEvent.VK_UP:
+<span class="nc" id="L226">                snakes.get(id).moveBy(0, -1);</span>
 <span class="nc" id="L227">                break;</span>
-            case KeyEvent.VK_D:
-<span class="nc" id="L229">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);</span>
+            case KeyEvent.VK_DOWN:
+<span class="nc" id="L229">                snakes.get(id).moveBy(0, 1);</span>
 <span class="nc" id="L230">                break;</span>
-            case KeyEvent.VK_W:
-<span class="nc" id="L232">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);</span>
+            case KeyEvent.VK_A:
+<span class="nc" id="L232">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);</span>
 <span class="nc" id="L233">                break;</span>
+            case KeyEvent.VK_D:
+<span class="nc" id="L235">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);</span>
+<span class="nc" id="L236">                break;</span>
+            case KeyEvent.VK_W:
+<span class="nc" id="L238">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);</span>
+<span class="nc" id="L239">                break;</span>
             case KeyEvent.VK_S:
-<span class="nc" id="L235">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);</span>
+<span class="nc" id="L241">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);</span>
                 break;
         }
-<span class="fc" id="L238">        world.update();</span>
+<span class="fc" id="L244">        world.update();</span>
 
-<span class="fc" id="L240">        return this;</span>
+<span class="fc" id="L246">        return this;</span>
     }
 
     @Override
     public Screen respondToUserInput(int e, int id) {
 
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">        if (this.snakes.get(id).hp() &lt; 0) {</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        if (this.snakes.get(id).hp() &lt; 0) {</span>
             //this.factory.getExecutor().shutdown();
-<span class="nc" id="L248">            this.snakes.remove(id);</span>
-<span class="nc" id="L249">            return new LoseScreen();</span>
+<span class="nc" id="L254">            this.snakes.remove(id);</span>
+<span class="nc" id="L255">            return new LoseScreen();</span>
         }
-<span class="fc" id="L251">        boolean ok = true;</span>
-<span class="fc" id="L252">        List&lt;Creature&gt; del = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (Creature boss: this.bossList) {</span>
-<span class="pc bpc" id="L254" title="1 of 2 branches missed.">            if (boss.hp() &lt; 1) {</span>
-<span class="nc" id="L255">                del.add(boss);</span>
+<span class="fc" id="L257">        boolean ok = true;</span>
+<span class="fc" id="L258">        List&lt;Creature&gt; del = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        for (Creature boss: this.bossList) {</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">            if (boss.hp() &lt; 1) {</span>
+<span class="nc" id="L261">                del.add(boss);</span>
             } else {
-<span class="fc" id="L257">                ok = false;</span>
+<span class="fc" id="L263">                ok = false;</span>
             }
-<span class="fc" id="L259">        }</span>
-<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        for (Creature boss: del) {</span>
-<span class="nc" id="L261">            this.bossList.remove(boss);</span>
-<span class="nc" id="L262">        }</span>
-<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        if (ok) {</span>
+<span class="fc" id="L265">        }</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">        for (Creature boss: del) {</span>
+<span class="nc" id="L267">            this.bossList.remove(boss);</span>
+<span class="nc" id="L268">        }</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (ok) {</span>
             //this.factory.getExecutor().shutdown();
-<span class="nc" id="L265">            return new WinScreen();</span>
+<span class="nc" id="L271">            return new WinScreen();</span>
         }
 
-<span class="pc bpc" id="L268" title="1 of 9 branches missed.">        switch (e) {</span>
+<span class="pc bpc" id="L274" title="1 of 9 branches missed.">        switch (e) {</span>
             case KeyEvent.VK_LEFT:
-<span class="fc" id="L270">                snakes.get(id).moveBy(-1, 0);</span>
-<span class="fc" id="L271">                break;</span>
-            case KeyEvent.VK_RIGHT:
-<span class="fc" id="L273">                snakes.get(id).moveBy(1, 0);</span>
-<span class="fc" id="L274">                break;</span>
-            case KeyEvent.VK_UP:
-<span class="fc" id="L276">                snakes.get(id).moveBy(0, -1);</span>
+<span class="fc" id="L276">                snakes.get(id).moveBy(-1, 0);</span>
 <span class="fc" id="L277">                break;</span>
-            case KeyEvent.VK_DOWN:
-<span class="fc" id="L279">                snakes.get(id).moveBy(0, 1);</span>
+            case KeyEvent.VK_RIGHT:
+<span class="fc" id="L279">                snakes.get(id).moveBy(1, 0);</span>
 <span class="fc" id="L280">                break;</span>
-            case KeyEvent.VK_A:
-<span class="fc" id="L282">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);</span>
+            case KeyEvent.VK_UP:
+<span class="fc" id="L282">                snakes.get(id).moveBy(0, -1);</span>
 <span class="fc" id="L283">                break;</span>
-            case KeyEvent.VK_D:
-<span class="fc" id="L285">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);</span>
+            case KeyEvent.VK_DOWN:
+<span class="fc" id="L285">                snakes.get(id).moveBy(0, 1);</span>
 <span class="fc" id="L286">                break;</span>
-            case KeyEvent.VK_W:
-<span class="fc" id="L288">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);</span>
+            case KeyEvent.VK_A:
+<span class="fc" id="L288">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), -1, 0);</span>
 <span class="fc" id="L289">                break;</span>
+            case KeyEvent.VK_D:
+<span class="fc" id="L291">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 1, 0);</span>
+<span class="fc" id="L292">                break;</span>
+            case KeyEvent.VK_W:
+<span class="fc" id="L294">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, -1);</span>
+<span class="fc" id="L295">                break;</span>
             case KeyEvent.VK_S:
-<span class="fc" id="L291">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);</span>
+<span class="fc" id="L297">                factory.newBullet(snakes.get(id).x(), snakes.get(id).y(), 0, 1);</span>
                 break;
         }
-<span class="fc" id="L294">        world.update();</span>
-<span class="fc" id="L295">        return this;</span>
+<span class="fc" id="L300">        world.update();</span>
+<span class="fc" id="L301">        return this;</span>
     }
 
     // sync with record
     public void synchronize() {
-<span class="pc bpc" id="L300" title="1 of 2 branches missed.">        if (world.occupied == null) {</span>
-<span class="nc" id="L301">            world.occupied = new AtomicBoolean[world.width()][world.height()];</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">            for (int i = 0; i &lt; world.width(); i++) {</span>
-<span class="nc bnc" id="L303" title="All 2 branches missed.">                for (int j = 0; j &lt; world.height(); j++) {</span>
-<span class="nc" id="L304">                    world.occupied[i][j] = new AtomicBoolean();</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        if (world.occupied == null) {</span>
+<span class="nc" id="L307">            world.occupied = new AtomicBoolean[world.width()][world.height()];</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">            for (int i = 0; i &lt; world.width(); i++) {</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">                for (int j = 0; j &lt; world.height(); j++) {</span>
+<span class="nc" id="L310">                    world.occupied[i][j] = new AtomicBoolean();</span>
                 }
             }
-<span class="nc bnc" id="L307" title="All 2 branches missed.">            for (Creature creature: world.getCreatures()) {</span>
-<span class="nc" id="L308">                int x = creature.x(), y = creature.y();</span>
-<span class="nc" id="L309">                world.occupied[x][y].compareAndSet(false, true);</span>
-<span class="nc" id="L310">            }</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            for (Creature creature: world.getCreatures()) {</span>
+<span class="nc" id="L314">                int x = creature.x(), y = creature.y();</span>
+<span class="nc" id="L315">                world.occupied[x][y].compareAndSet(false, true);</span>
+<span class="nc" id="L316">            }</span>
         }
-<span class="pc bpc" id="L312" title="1 of 2 branches missed.">        if (this.factory.emptyExecutor()) {</span>
-<span class="nc" id="L313">            this.factory.setExecutor(new ScheduledThreadPoolExecutor(20));</span>
-<span class="nc bnc" id="L314" title="All 2 branches missed.">            for (Creature snake: this.snakes.values()) {</span>
-<span class="nc" id="L315">                this.factory.setSnakeTask((SnakeAI) snake.getAI());</span>
-<span class="nc" id="L316">            }            </span>
-<span class="nc bnc" id="L317" title="All 2 branches missed.">            for (Creature boss: this.bossList) {</span>
-<span class="nc" id="L318">                this.factory.setBossTask((BossAI) boss.getAI());</span>
-<span class="nc" id="L319">            }</span>
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">        if (this.factory.emptyExecutor()) {</span>
+<span class="nc" id="L319">            this.factory.setExecutor(new ScheduledThreadPoolExecutor(20));</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">            for (Creature snake: this.snakes.values()) {</span>
+<span class="nc" id="L321">                this.factory.setSnakeTask((SnakeAI) snake.getAI());</span>
+<span class="nc" id="L322">            }            </span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">            for (Creature boss: this.bossList) {</span>
+<span class="nc" id="L324">                this.factory.setBossTask((BossAI) boss.getAI());</span>
+<span class="nc" id="L325">            }</span>
         }
-<span class="fc" id="L321">    }</span>
+<span class="fc" id="L327">    }</span>
 
     public void removeSnake(int id) {
-<span class="fc" id="L324">        Creature snake = snakes.get(id);</span>
-<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        if (snake != null) {</span>
-<span class="fc" id="L326">            snake.modifyHP(-snake.maxHP() - 100);</span>
+<span class="fc" id="L330">        Creature snake = snakes.get(id);</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">        if (snake != null) {</span>
+<span class="fc" id="L332">            snake.modifyHP(-snake.maxHP() - 100);</span>
         }
-<span class="fc" id="L328">    }</span>
+<span class="fc" id="L334">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
