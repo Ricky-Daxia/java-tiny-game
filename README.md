@@ -8,6 +8,7 @@
 - 玩家使用方向键移动，也可以按下 `W`、`A`、`S`、`D` 发射猫猫子弹来攻击 boss，当 boss 都被消灭后游戏就胜利了
 ![image](/image/game.png)
 ### j05 - 并发
+录屏链接：https://www.bilibili.com/video/BV1Sp4y1o7oa
 #### 游戏中的并发对象介绍
 - **玩家**
     - 每名玩家拥有一个独立的线程，通过定时调度来实时更新它的状态，包括改变受攻击状态下的任务图标、判断是否处于被污染的格子上、更新 hp 值
@@ -54,6 +55,7 @@
 ![image](image/report.png)
 - 完整的报告保存在 `jacoco/` 目录下
 ### j08 - IO
+录屏链接：https://www.bilibili.com/video/BV11G411r78R
 #### 地图保存/加载
 实现思路是把地图的地形映射到一个数字，然后整张地图就可以编码到文本文件中，保存在 maven 项目的 `resources/` 目录下。在加载游戏时，通过 `getClass().getClassLoader().getResourceAsStream()` 方法把资源文件作为输入流，然后通过 `BufferedReader` 来读入地图，实现地图加载和自动构建
 #### 进度保存/恢复
@@ -63,6 +65,7 @@
 #### 游戏过程录制/回放
 因为每次调用 `repaint()` 函数会执行游戏世界的更新，因此可以在负责游戏更新的线程每次调用 `repaint()` 之后，把当前的游戏状态序列化并输出到记录文件中保存。实现上，为玩家提供了“在录制模式下游戏”的功能，在该模式下游戏，会自动录制游戏过程。在 `ApplicationMain` 类中维护一个变量 `recordCnt`，用于标识记录文件编号，每次记录游戏状态时，会把序列化后的对象输出到一个新的文件中，文件名为当前记录的编号值，录制文件保存在 `record/` 目录下。回放功能如上所述
 ### j09 - 网络通信
+录屏链接：https://www.bilibili.com/video/BV1ii4y1a7Tk
 基于 NIO Selector 实现了 **Reactor** 来管理网络通信
 ![image](image/reactor.png)
 - `ReactorManager` 类用于封装 Reactor 的启动过程，包括开启 `ServerSocketChannel` 和注册各事件的 `EventHandler`
